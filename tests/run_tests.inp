@@ -7,6 +7,34 @@ include string_utils.gfn
 include assertion.gfn
 include extra.gfn
 
+
+open denmark.gdt -q -p
+list L = LRM LRY
+function void test_replace_missings (const list L)
+    print "Start testing replace_missings()"
+
+    scalar key_value = $huge
+    series a = L[1]
+    series b = L[2]
+    a[1] = NA
+    a[55] = NA
+    b[10] = NA
+    list IN = a b
+
+    list OUT = replace_missings(IN, key_value)
+    assert_equal_num(nelem(OUT), 2)
+    assert_equal_num(OUT[1][1], $huge)
+    assert_equal_num(OUT[1][55], $huge)
+    assert_equal_num(OUT[1][2], a[2])
+
+    assert_equal_num(OUT[2][10], $huge)
+    assert_equal_num(OUT[2][1], b[1])
+
+    print "Finished testing replace_missings()"
+end function
+test_replace_missings(L)
+
+
 open denmark.gdt -q -p
 list L = LRM LRY IBO
 function void test_stack_data (const list L)

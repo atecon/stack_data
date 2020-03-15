@@ -1,15 +1,13 @@
 set verbose off
 clear
 
-open denmark.gdt -q
+#open denmark.gdt -q
+#list L = LRM LRY IBO IDE
 
-list L = LRM LRY IBO IDE
-
-# TODO: test
 function list replace_missings (const list L,
                                 const scalar key_value "identifier for missing values")
     /* Replace missing values to make sure dimension
-    are correctly catched when casting list to matrix.  */
+    are correctly catched when casting list to matrix. */
 
     list R = null
     strings names = varnames(L)
@@ -18,15 +16,6 @@ function list replace_missings (const list L,
     endloop
     
     return R
-end function 
-
-# TODO: test
-function series set_missings (const series y,
-                              const scalar key_value "identifier for missing values")
-    /* Replace temporarily replaced actual missings of stacked series. */
-    
-    series ret = missing(y) == key_value ? NA : y
-    return ret
 end function 
 
 
@@ -55,7 +44,7 @@ function scalar stack_data (const list L "List of series to stack",
     endif
 
     series stacked_series = data_vector
-    series stacked_series = set_missings(stacked_series, key_value)
+    series stacked_series = missing(stacked_series) == key_value ? NA : stacked_series
     series id = get_id_series(L)
     
     list FINAL = id stacked_series
