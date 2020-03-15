@@ -1,9 +1,3 @@
-set verbose off
-clear
-
-#open denmark.gdt -q
-#list L = LRM LRY IBO IDE
-
 function list replace_missings (const list L,
                                 const scalar key_value "identifier for missing values")
     /* Replace missing values to make sure dimension
@@ -28,6 +22,11 @@ function scalar stack_data (const list L "List of series to stack",
         printf "\nError: Input list needs at least two members.\n"
         return 1
     endif
+    if strlen(filename) == 0
+        printf "\nError: Invalid filename.\n"
+        return 1
+    endif
+
     setobs 1 1 --cross-section 		# reset eventual index
     scalar T = $nobs
     scalar n_L = nelem(L) - 1
@@ -44,7 +43,7 @@ function scalar stack_data (const list L "List of series to stack",
     endif
 
     series stacked_series = data_vector
-    series stacked_series = missing(stacked_series) == key_value ? NA : stacked_series
+    series stacked_series = stacked_series == key_value ? NA : stacked_series
     series id = get_id_series(L)
     
     list FINAL = id stacked_series
@@ -53,7 +52,7 @@ function scalar stack_data (const list L "List of series to stack",
     return err_code
 end function
 
-#TODO: test
+
 function series get_id_series (const list L)
     /* Construct index indicating to which input series an observation
     belongs to. */
@@ -79,51 +78,3 @@ function scalar store_stacked_series (const list L "ID and stacked series",
 
     return 0
 end function                                        
-
-#######################################################################
-
-
-
-function matrix concat_mats_add_names_and_sort (const matrix date_of_informations,
-                                                const matrix stacked_forecasts)
-    matrix ret = msortby(date_of_informations ~ stacked_forecasts, 1)
-    cnameset(ret, "info_date forecast_date horizon forecast_results")
-
-    return ret
-end function
-
-# TODO: untested
-function matrix stack_multiperiod_forecasts (const list FC)
-/* Now stack series of forecasts. Each series refers to some
-   specific multi-period forecast horizon. 1st series-->h=1,
-      last series-->h=max_hor. */
-
-    matrix mat = {}
-    series obsdate = $obsdate
-    loop i=1..nelem(FC) -q
-        series foo = NA
-        series foo = FC[i]
-        smpl obsdate foo --no-missing
-        mat |=  {isodate(epochday(obsdate))} ~ $i ~ {foo}	# date_forecasted ~ horizon ~ forecast_value
-    endloop
-
-    return mat
-end function
-
-# TODO: untested
-function matrix stack_info_dates (const series obsdate,
-                                  const int max_horizon[1::])
-    /* Vector of date_of_information from T to T+R-h
-       where T is the first date_of_information, R the number of
-       moving-window sequences and 'h' forecast horizon. Date is
-       returned in ISO8601 format.
-    return: Column vector of dates. */
-
-    matrix mat = {}
-    loop i=1..max_horizon -q
-        mat |= { isodate(epochday($obsdate) -1) }
-        catch smpl ; -1
-    endloop
-
-    return mat
-end function
