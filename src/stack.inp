@@ -55,26 +55,25 @@ function scalar stack_data (const list L "List of series to stack",
     endif
 
     series stacked_series = data_vector
-    series stacked_series = set_missings(stacked_series)
-
-#*** HIER WEITERMACHEN: FINAL sollte ein Tnew mal 2 Matrix sein
-    list FINAL = id_vector(L) ~ stacked_series
-    FINAL
-stop
+    series stacked_series = set_missings(stacked_series, key_value)
+    series id = get_id_series(L)
+    
+    list FINAL = id stacked_series
     scalar err_code = store_stacked_series(FINAL, filename)
 
     return err_code
 end function
 
-function matrix id_vector (const list L)
+#TODO: test
+function series get_id_series (const list L)
     /* Construct index indicating to which input series an observation
     belongs to. */
 
-    scalar T =$nobs
     scalar k = nelem(L)
-    matrix mat = ones(T,k) .* seq(1,k)
+    scalar T = $nobs / k			# length of each vector
+    series id = vec(ones(T,k) .* seq(1,k))
 
-    return vec(mat)
+    return id
 end function 
 
 

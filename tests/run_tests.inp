@@ -8,16 +8,17 @@ include assertion.gfn
 include extra.gfn
 
 open denmark.gdt -q -p
-list L = LRM LRY
+list L = LRM LRY IBO
 function void test_stack_data (const list L)
     print "Start testing stack_data()"
 
     string filename = "foo.gdt"
     series a = L[1]
     series b = L[2]
+    series c = L[3]
     a[1] = NA
     b[10] = NA
-    list IN = a b
+    list IN = a b c
     scalar err_code = stack_data(IN, filename)
     assert_false(err_code) 
     
