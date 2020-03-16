@@ -68,7 +68,6 @@ function void test_stack_data (const list L)
     scalar err_code = stack_data(L, "")
     assert_true(err_code)
 
-
     string filename = "foo.gdt"
     series a = L[1]
     series b = L[2]
@@ -76,7 +75,7 @@ function void test_stack_data (const list L)
     a[1] = NA
     b[10] = NA
     list IN = a b c
-    scalar err_code = stack_data(IN, filename)
+    scalar err_code = stack_data(IN, filename, "some_cool_series", "some fancy description")
     assert_false(err_code)
 
     print "Finished testing stack_data()"
@@ -85,9 +84,10 @@ test_stack_data(L)
 scalar T = $nobs
 scalar k = nelem(L)
 open "foo.gdt" -q -p
+assert_true(exists("some_cool_series"))
 assert_equal_num($nobs, T*k)
-assert_true(missing(stacked_series[1]))
-assert_true(missing(stacked_series[T+10]))
+assert_true(missing(some_cool_series[1]))
+assert_true(missing(some_cool_series[T+10]))
 print "All tests passed for stack_data()"
 
 
