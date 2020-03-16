@@ -1,0 +1,22 @@
+set verbose off
+clear
+
+set workdir "/home/at/git/stack"
+
+include "./src/stack.inp"
+
+open denmark.gdt -q -p
+list L = LRM LRY IBO
+store "time_series.gdt" IDE
+scalar T = $nobs
+
+string filename = "stacked_series.gdt"
+scalar code = stack_data(L, filename, "some_new_var", "some series description")
+print code
+
+open @filename -p -q
+eval $nobs
+setobs T 1:1 --stacked-time-series
+append "time_series.gdt"
+
+

@@ -5,7 +5,6 @@ include "./src/stack.inp" --force
 
 include assertion.gfn
 
-
 open denmark.gdt -q -p
 list L = LRM LRY IBO
 
