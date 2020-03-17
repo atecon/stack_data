@@ -53,16 +53,31 @@ function scalar stack_data (const list L "List of series to stack",
     series @series_name = data_vector
     series @series_name = @series_name == key_value ? NA : @series_name
     setinfo @series_name --description="@series_description"
-    series id = get_id_series(L)
+    series unit_id = get_unit_id_series(L)
+    series obs_id = get_obs_id_series(L)
+    setinfo unit_id --description="Unit dimension"    
+    setinfo obs_id --description="Time dimension"
     
-    list FINAL = id @series_name
+    list FINAL = unit_id obs_id @series_name
     scalar err_code = store_stacked_series(FINAL, filename)
 
     return err_code
 end function
 
 
-function series get_id_series (const list L)
+function series get_obs_id_series (const list L)
+    /* Construct a running number from 1 to T where each
+    entry refers to the i-th observation of a unit. */
+
+    scalar k = nelem(L)
+    scalar T = $nobs / k			# length of each vector
+    series id = vec(seq(1,T)' .* ones(k)')
+
+    return id
+end function 
+
+
+function series get_unit_id_series (const list L)
     /* Construct index indicating to which input series an observation
     belongs to. */
 

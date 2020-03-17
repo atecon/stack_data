@@ -16,7 +16,7 @@ print code
 
 open @filename -p -q
 eval $nobs
-setobs T 1:1 --stacked-time-series
+setobs unit_id obs_id --panel-vars
 append "time_series.gdt"
 
 
