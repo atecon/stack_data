@@ -1,11 +1,10 @@
 author = Artur Tarassow
 email = atecon@posteo.de
-version = 0.1
-date = 2020-03-13
+version = 0.9
+date = 2020-03-24
 description = Stack list of series
-tags = C53
+tags = C81
 min-version = 2019b
-data-requirement = needs-time-series-data
 public = stack_data
-help = stack.txt
+help = stack_help.txt
 sample-script = stack_sample.inp
