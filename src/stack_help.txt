@@ -8,7 +8,7 @@ User-define replacement of gretl's deprecated stack() function. Suppose one has 
 
 stack_date(L, filename, series_name, series_description):
 --------------
-Vertically stack data of L into a single series and store the resulting series. The stored data set includes three series: (1) "unit_id" is an identifier refering to the i-th stacked series, (2) "obs_id" is a unit-specific running number from 1 to T identifier, and (3) the stacked series itself.
+Vertically stack data of L into a single series and store the resulting series. The stored data set includes three series: (1) "unit_id" is an identifier referring to the i-th stacked series, (2) "obs_id" is a unit-specific running number from 1 to T identifier, and (3) the stacked series itself.
 
 Arguments:
 List 				-- list, List of series to stack
