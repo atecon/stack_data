@@ -1,24 +1,9 @@
-function list replace_missings (const list L,
-                                const scalar key_value "identifier for missing values")
-    /* Replace missing values to make sure dimension
-    are correctly catched when casting list to matrix. */
-
-    list R = null
-    strings names = varnames(L)
-    loop foreach i L -q
-        R += genseries(names[i], (missing(L.$i)==1 ? key_value : L.$i))
-    endloop
-    
-    return R
-end function 
-
-
 function scalar stack_data (const list L "List of series to stack",
                             const string filename "Full path + filename of new dataset",
                             const string series_name[null] "Name of constructed series",
                             const string series_description[null] "Description")
     /* Vertically stack data of L into a single series and
-    store the resulting series.
+       store the resulting series.
     return: 0 if extended dataset is succesfully stored; 1 otherwise. */
 
     if nelem(L) < 2
@@ -40,10 +25,10 @@ function scalar stack_data (const list L "List of series to stack",
     scalar T = $nobs
     scalar n_L = nelem(L) - 1
     scalar add_T = T * n_L
-    scalar key_value = $huge		# Flag missings by this value
 
-    list R = replace_missings(L, key_value)
-    matrix data_vector = vec({R})
+    set skip_missing off			# NAs will not be dropped when converting from series to vector
+    matrix data_vector = vec({L})
+    set skip_missing on
 
     catch dataset addobs add_T
     if $error
@@ -51,14 +36,12 @@ function scalar stack_data (const list L "List of series to stack",
         return 1
     endif
 
-    series @series_name = data_vector
-    series @series_name = @series_name == key_value ? NA : @series_name
-    setinfo @series_name --description="@series_description"
+    series @series_name = get_target_series(data_vector, series_description)
     series unit_id = get_unit_id_series(L)
     series obs_id = get_obs_id_series(L)
-    setinfo unit_id --description="Unit dimension"    
+    setinfo unit_id --description="Unit dimension"
     setinfo obs_id --description="Time dimension"
-    
+
     list FINAL = unit_id obs_id @series_name
     scalar err_code = store_stacked_series(FINAL, filename)
 
@@ -66,8 +49,17 @@ function scalar stack_data (const list L "List of series to stack",
 end function
 
 
+function series get_target_series (const matrix data_vector, const string series_description)
+    /* Convert vector to series and add a series description. */
+    
+    series @series_name = data_vector
+    setinfo @series_name --description="@series_description"
+
+    return @series_name
+end function
+
 function series get_obs_id_series (const list L)
-    /* Construct a running number from 1 to T where each
+/* Construct a running number from 1 to T where each
     entry refers to the i-th observation of a unit. */
 
     scalar k = nelem(L)
@@ -75,11 +67,11 @@ function series get_obs_id_series (const list L)
     series id = vec(seq(1,T)' .* ones(k)')
 
     return id
-end function 
+end function
 
 
 function series get_unit_id_series (const list L)
-    /* Construct index indicating to which input series an observation
+/* Construct index indicating to which input series an observation
     belongs to. */
 
     scalar k = nelem(L)
@@ -87,7 +79,7 @@ function series get_unit_id_series (const list L)
     series id = vec(ones(T,k) .* seq(1,k))
 
     return id
-end function 
+end function
 
 
 function scalar store_stacked_series (const list L "ID and stacked series",
@@ -102,4 +94,4 @@ function scalar store_stacked_series (const list L "ID and stacked series",
     endif
 
     return 0
-end function                                        
+end function
