@@ -1,9 +1,8 @@
 set verbose off
 clear
 
-set workdir "/home/at/git/stack"
-include "./src/stack.inp" --force
 
+include "./src/stack.inp" --force
 include assertion.gfn
 
 open denmark.gdt -q -p

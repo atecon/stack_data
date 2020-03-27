@@ -36,11 +36,9 @@ function scalar stack_data (const list L "List of series to stack",
         return 1
     endif
 
-    series @series_name = get_target_series(data_vector, series_description)
+    series @series_name = get_target_series(data_vector, series_name, series_description)
     series unit_id = get_unit_id_series(L)
     series obs_id = get_obs_id_series(L)
-    setinfo unit_id --description="Unit dimension"
-    setinfo obs_id --description="Time dimension"
 
     list FINAL = unit_id obs_id @series_name
     scalar err_code = store_stacked_series(FINAL, filename)
@@ -49,14 +47,17 @@ function scalar stack_data (const list L "List of series to stack",
 end function
 
 
-function series get_target_series (const matrix data_vector, const string series_description)
+function series get_target_series (const matrix data_vector,
+                                   const string series_name,
+                                   const string series_description)
     /* Convert vector to series and add a series description. */
     
-    series @series_name = data_vector
+    genseries(series_name, data_vector)
     setinfo @series_name --description="@series_description"
 
     return @series_name
 end function
+
 
 function series get_obs_id_series (const list L)
 /* Construct a running number from 1 to T where each
@@ -65,6 +66,7 @@ function series get_obs_id_series (const list L)
     scalar k = nelem(L)
     scalar T = $nobs / k			# length of each vector
     series id = vec(seq(1,T)' .* ones(k)')
+    setinfo id --description="Time dimension"
 
     return id
 end function
@@ -77,6 +79,7 @@ function series get_unit_id_series (const list L)
     scalar k = nelem(L)
     scalar T = $nobs / k			# length of each vector
     series id = vec(ones(T,k) .* seq(1,k))
+    setinfo id --description="Unit dimension"
 
     return id
 end function
