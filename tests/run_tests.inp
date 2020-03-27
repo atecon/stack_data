@@ -2,7 +2,7 @@ set verbose off
 clear
 
 
-include "./src/stack.inp" --force
+include "./src/stack_data.inp" --force
 include assertion.gfn
 
 open denmark.gdt -q -p
