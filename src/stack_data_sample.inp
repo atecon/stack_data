@@ -10,13 +10,18 @@ scalar T = $nobs
 
 # Store stacked data
 string filename = "stacked_series.gdt"
-scalar code = stack_data(L, filename, "some_new_var", "some series description")
-print code
+scalar error_code = stack_data(L, filename, "some_new_var", "some series description")
 
-# Open stacked data and set a panel
+# CASE 1: Open stacked data and set a panel
 open @filename -p -q
+print unit_id obs_id -o
 eval $nobs
 setobs unit_id obs_id --panel-vars
-append "time_series.gdt"
+append "time_series.gdt"				# Append 'macro' time-series which is replicated for all panel units
 
+
+# CASE 2: Open existing panel data set and join stacked series
+open grunfeld.gdt -q -p
+join @filename some_new_var --ikey=firm,time --okey=unit_id,obs_id
+print firm time invest some_new_var -o		# Valid observations offor the 1st three firms for 'some_new_var'
 

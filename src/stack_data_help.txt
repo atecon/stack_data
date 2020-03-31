@@ -10,6 +10,8 @@ The stack_data() package, however, does not support all the interesting function
 This package does the following:
 Suppose one has two series, x1 and x2, for each T observations. The public function stack_data() compiles a data set that starts with a block for x1 with T rows followed by a block with the same structure for x2. Hence, the resulting series is a vertical concatenation of x1 and x2.
 
+The sample script illustrates how the written stacked data set can be assembled into a panel via stack_data() plus gretl's built-in "join" command.
+
 
 stack_data(L, filename, series_name, series_description):
 --------------
