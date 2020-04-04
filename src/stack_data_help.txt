@@ -1,5 +1,4 @@
-Written by Artur Tarassow (please ask questions and report bugs on the gretl
-mailing list if possible).
+Pplease ask questions and report bugs on the gretl mailing list if possible.
 
 Source code and test script(s) can be found here:
 https://github.com/atecon/stack
