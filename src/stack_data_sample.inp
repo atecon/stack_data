@@ -3,25 +3,25 @@ clear
 
 include stack_data.gfn
 
-open denmark.gdt -q -p
-list L = LRM LRY IBO
-store "time_series.gdt" IDE
+#open sidebyside.gdt -q -p --from-package=stack_data
+open "/home/at/git/stack/src/sidebyside.gdt" -q -p
+
+store "time_series.gdt" Chile
 scalar T = $nobs
 
 # Store stacked data
+list to_be_stacked = Australia Austria Belgium Canada
 string filename = "stacked_series.gdt"
-scalar error_code = stack_data(L, filename, "some_new_var", "some series description")
+scalar error_code = stack_data(to_be_stacked, filename, "gdp", "gdp for AU AT BE CA")
 
 # CASE 1: Open stacked data and set a panel
 open @filename -p -q
-print unit_id obs_id -o
-eval $nobs
+series country_name = unit_id
+stringify(country_name, defarray("AU", "AT", "BE", "CA"))
+print unit_id country_name obs_id gdp -o
 setobs unit_id obs_id --panel-vars
-append "time_series.gdt"				# Append 'macro' time-series which is replicated for all panel units
 
-
-# CASE 2: Open existing panel data set and join stacked series
-open grunfeld.gdt -q -p
-join @filename some_new_var --ikey=firm,time --okey=unit_id,obs_id
+# CASE 2: Join time-series for Chile to panel
+join time_series.gdt --ikey=firm,time --okey=unit_id,obs_id
 print firm time invest some_new_var -o		# Valid observations offor the 1st three firms for 'some_new_var'
 

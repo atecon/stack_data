@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE gretldata SYSTEM "gretldata.dtd">
+
+<gretldata version="1.4" name="sidebyside" frequency="1" startobs="2013" endobs="2018" type="time-series">
+<description>Data downloaded as xls from https://stats.oecd.org/ 2020-04-09
+Gross domestic product (expenditure approach)
+Per head, current prices, current PPPs
+
+</description>
+<variables count="5">
+<variable name="Australia"
+ label="real GDP per capita at PPP"
+/>
+<variable name="Austria"
+ label="real GDP per capita at PPP"
+/>
+<variable name="Belgium"
+ label="real GDP per capita at PPP"
+/>
+<variable name="Canada"
+ label="real GDP per capita at PPP"
+/>
+<variable name="Chile"
+ label="real GDP per capita at PPP"
+/>
+</variables>
+<observations count="6" labels="false">
+<obs>47761.21406 47936.677963 43672.712292 44298.514462 22352.530726 </obs>
+<obs>47644.762792 48813.534409 44929.933328 45753.782936 22687.933017 </obs>
+<obs>47304.816745 49955.456118 46214.082208 44671.409504 22593.272962 </obs>
+<obs>50284.172793 52614.377745 48626.6985 46480.50132 22615.767043 </obs>
+<obs>51297.139196 54652.468293 50772.331052 48633.836154 23657.208791 </obs>
+<obs>53700.680893 56889.351557 52282.556581 50077.786708 24709.122527 </obs>
+</observations>
+</gretldata>
