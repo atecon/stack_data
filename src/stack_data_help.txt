@@ -1,33 +1,29 @@
-Pplease ask questions and report bugs on the gretl mailing list if possible.
+Please ask questions and report bugs on the gretl mailing list if possible.
 
 Source code and test script(s) can be found here:
 https://github.com/atecon/stack
 
-User-defined alternative to gretl's built-in stack() function. The built-in
-function currently does not work within a loop-block and within a function-block as the active data set cannot be extended by additional observations in these cases.
-The stack_data() package, however, does not support all the interesting functionalities of the built-in stack() function.
-This package does the following:
-Suppose one has two series, x1 and x2, for each T observations. The public function stack_data() compiles a data set that starts with a block for x1 with T rows followed by a block with the same structure for x2. Hence, the resulting series is a vertical concatenation of x1 and x2.
+Since gretl 2020b, the built-in stack() function has got new cool features, namely the "offset" and "n" parameters (see for details: http://gretl.sourceforge.net/gretl-help/funcref.html#stack).
 
-The sample script illustrates how the written stacked data set can be assembled into a panel via stack_data() plus gretl's built-in "join" command.
+The stack_data() function proposed here, however, may still be helpfull for some applications. First, it can be applied within both a loop-block and a function-block, respectively. While the built-in stack() function can be applied in a loop-block since gretl version 2020b, it is not applicable within a function-block as the dimension of the data set cannot be changed by a some statement within a function-block.
+
+The stack_data() does its operation not in-memory but rather stores the stacked data set in a separate data file. It simply stacks k series (each of length T) vertically, and adds the two identifier series: (1) 'unit_id' (unique integer identifying each of the k series) and (2) 'obs_id' (running number refering to each of T observations). Both, 'unit_id' and 'obs_id' may be helpful in case the user wants to define the stacked data as a panel data set, and/ or join another data set by means of gretl's built-in 'join' command.
 
 
 stack_data(L, filename, series_name, series_description):
 --------------
-Vertically stack data of L into a single series and store the resulting series. The stored data set includes three series: (1) "unit_id" is an identifier referring to the i-th stacked series, (2) "obs_id" is a unit-specific running number from 1 to T identifier, and (3) the stacked series itself.
+Vertically stack data of list L into a single series and store the resulting series. The stored data set includes three series: (1) "unit_id" is an identifier referring to the i-th stacked series, (2) "obs_id" is a unit-specific running number from 1 to T identifier, and (3) the stacked series itself.
 
 Arguments:
 List 			- list, List of series to stack
 filename		- string, Full path plus filename where to store data set
-series_name		- string, Name of compiled series (optional, default:
-			"stacked_series")
-series_description	- string, Set the variable's descriptive label (optional,
-			default: "")
+series_name		- string, Name of compiled series (optional, default: "stacked_series")
+series_description	- string, Set the variable's descriptive label (optional, default: "")
 
 Return:
 If the stacked data set is succesfully stored, return 0, 1 otherwise.
 
 
 Changelog:
-- v0.9, March 2020:
+- v0.9, April 2020:
     + initial release
