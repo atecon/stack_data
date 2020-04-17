@@ -2,7 +2,7 @@ set verbose off
 clear
 
 include stack_data.gfn
-open international_gdp.gdt --from-package=stack_data --quiet
+open international_gdp.gdt --frompkg=stack_data --quiet
 
 # Store stacked data
 list to_be_stacked = dataset
