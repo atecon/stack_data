@@ -12,7 +12,8 @@ stack_data(to_be_stacked, filename, "gdp", "gdp for AU AT BE CA CH")
 # Open stacked data and set a panel
 open "@filename" -p -q
 series country_name = unit_id
-stringify(country_name, defarray("AU", "AT", "BE", "CA"))		# attache country name string
+# attach country name string
+stringify(country_name, defarray("AU", "AT", "BE", "CA", "CH"))
 
 setobs unit_id obs_id --panel-vars
 print unit_id country_name obs_id gdp -o
