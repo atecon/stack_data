@@ -1,9 +1,9 @@
 set verbose off
 clear
-
+set assert stop
 
 include "./src/stack_data.inp" --force
-include assertion.gfn
+
 
 open denmark.gdt -q -p
 list L = LRM LRY IBO
@@ -13,13 +13,14 @@ function void test_get_unit_id_series (const list L)
 
     scalar T = $nobs
     scalar k = nelem(L)
+    scalar expected = T * k
     scalar T_add = T * (k-1)
     dataset addobs T_add
 
-    series id = get_unit_id_series(L)
-    assert_equal_num(nobs(id), T*k)
+    series ret = get_unit_id_series(L)
+    scalar actual = nobs(ret)
 
-    print "Finished testing get_unit_id_series()"
+    assert(actual == expected)
 end function
 test_get_unit_id_series(L)
 
@@ -32,29 +33,50 @@ function void test_get_obs_id_series (const list L)
     scalar T_add = T * (k-1)
     dataset addobs T_add
 
-    series id = get_obs_id_series(L)
-    assert_equal_num(nobs(id), T*k)
-    assert_equal_num(id[1], 1)
-    assert_equal_num(id[2], 2)
-    assert_equal_num(id[T], T)
+    expected_nobs = T * k
+    expected_value_1 = 1
+    expected_value_2 = 2
+    expected_value_T = T
 
-    print "Finished testing get_obs_id_series()"
+    series id = get_obs_id_series(L)
+    actual_nobs = nobs(id)
+    actual_value_1 = id[1]
+    actual_value_2 = id[2]
+    actual_value_T = id[T]
+
+    assert(actual_nobs == expected_nobs)
+    assert(actual_value_1 == expected_value_1)
+    assert(actual_value_2 == expected_value_2)
+    assert(actual_value_T == expected_value_T)
 end function
 test_get_obs_id_series(L)
 
-function void test_stack_data (const list L)
-    print "Start testing stack_data()"
 
-    list EMPTY = null
-    scalar err_code = stack_data(EMPTY, "foo")
-    assert_true(err_code)
 
-    list SINGLE = null
-    scalar err_code = stack_data(SINGLE, "foo")
-    assert_true(err_code)
+bundles Parameters = null
+Parameters = Parameters + _(list_items = "null", fname = "foo", expected = TRUE)
+Parameters = Parameters + _(list_items = "LRM", fname = "foo", expected = TRUE)
+Parameters = Parameters + _(list_items = "L", fname = "", expected = TRUE)
+open denmark.gdt -q -p
+list L = LRM LRY IBO
+function void test_stack_data_failing (const bundles P, const list L)
+    print "Start testing stack_data() failing cases"
 
-    scalar err_code = stack_data(L, "")
-    assert_true(err_code)
+    loop foreach i P
+        list X = null
+        string list_str = P[i].list_items
+        X = @list_str
+
+        scalar actual = stack_data(X, P[i].fname)
+
+        assert(actual == P[i].expected)
+    endloop
+end function
+test_stack_data_failing(Parameters, L)
+
+
+function void test_stack_data_valid (const bundles P, const list L)
+    print "Start testing stack_data() valid cases"
 
     string filename = "foo.gdt"
     series a = L[1]
@@ -63,20 +85,30 @@ function void test_stack_data (const list L)
     a[1] = NA
     b[10] = NA
     list IN = a b c
-    scalar err_code = stack_data(IN, filename, "some_cool_series", "some fancy description")
-    assert_false(err_code)
 
-    print "Finished testing stack_data()"
+    scalar expected = FALSE
+
+    scalar actual = stack_data(IN, filename, "some_cool_series",\
+                                "some fancy description")
+
+    assert(actual == expected)
 end function
-test_stack_data(L)
+test_stack_data_valid(Parameters, L)
+
+# Part of test_stack_data_valid()
 scalar T = $nobs
 scalar k = nelem(L)
 open "foo.gdt" -q -p
-assert_true(exists("some_cool_series"))
-assert_equal_num($nobs, T*k)
-assert_true(missing(some_cool_series[1]))
-assert_true(missing(some_cool_series[T+10]))
+scalar expected_nobs = T * k
+assert(inlist(dataset, "some_cool_series") > 0)
+assert($nobs == expected_nobs)
+assert(missing(some_cool_series[1]) == TRUE)
+assert(missing(some_cool_series[T+10]) == TRUE)
 print "All tests passed for stack_data()"
+
+
+
+
 
 
 printf "\nInfo: All tests passed.\n"
