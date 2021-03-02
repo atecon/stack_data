@@ -1,3 +1,43 @@
+function matrix unstack (const series x "Series to unstack",
+                         const series names[null] "Series holding group names",
+                         const strings names_array[null] "Array of group names alternative")
+    /* Unstack a panel series such that a series for each unit becomes a separate column vector. */
+
+    matrix ret
+
+    errorif($datatype != 3, "This function needs panel data.")
+    errorif(!exists(names) && !exists(names_array), "Pass either series or array of group names.")
+
+    scalar N = $nobs / $pd
+    strings clabels = array(N)
+
+    set skip_missing off
+    matrix mat = mshape({x}, $pd, N)
+    set skip_missing on
+
+    if exists(names)
+        strings names_array = strvals(names)
+        matrix ndx = uniq(names)         # ordering could be garbled
+    else
+        if nelem(names_array) <= N
+            printf "\nWarning: Array of group names (=%d) does not fit the\n\
+            number of units in the panel data set (=%d). No column labels added.",\
+            nelem(names_array), N
+            return mat
+        endif
+    endif
+
+    # compile column labels
+    loop i=1..N
+        j = ndx[i]
+        clabels[i] = fixname(names_array[j])
+    endloop
+    cnameset(mat, clabels)
+
+    return mat
+end function
+
+
 function matrix stack_matdata (const list L "List of series to stack",
                                const string series_name[null] "Name of constructed series")
     /* Vertically stack data of 'L' into a single series and return stacked data as matrix.

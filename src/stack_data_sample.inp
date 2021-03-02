@@ -2,11 +2,33 @@ set verbose off
 clear
 
 # include stack_data.gfn
-set workdir "/home/ninja/repo/stack_data"
+set workdir "/home/at/git/stack_data"
 include "./src/stack_data.inp" --force
 
 # open international_gdp.gdt --frompkg=stack_data --quiet
-open "./src/international_gdp.gdt"
+#open "./src/international_gdp.gdt"
+
+# unstack
+open grunfeld.gdt -q -p
+genr unit
+smpl unit <= 3 --restrict
+matrix mat = unstack(invest, firmname)
+#matrix mat = unstack(invest, _(names=firmname))
+mat
+stop
+
+# save as a dataset and reopen it
+
+y0 = sprintf("%d", min(year))
+fname = "@dotdir/tmp.gdt"
+store "@fname" --matrix=mat
+open "@fname" --preserve
+setobs 1 @y0
+
+
+
+
+
 
 # Store stacked data
 matrix mdata
@@ -28,4 +50,5 @@ print unit_id country_name obs_id gdp -o
 
 # Note: You may easily join another data set using the keys 'unit_id' and 'obs_id'
 # EXAMPLE: <join somne_data.gdt --ikey=unit_id,obs_id --okey=some_unit_key,some_obs_key>
+
 
