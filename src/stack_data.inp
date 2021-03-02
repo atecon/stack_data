@@ -30,27 +30,26 @@ function scalar stack_data (const list L "List of series to stack",
     if !exists(series_description)
         string series_description = ""
     endif
+    if isvalid_filename(filename) == FALSE
+        return TRUE
+    endif
 
-    list R = stackjob(L, series_name, series_description)
-    scalar err_code = store_stacked_series(R, filename)
+    scalar err_code = stackjob(L, series_name, series_description, filename)
 
     return err_code
 end function
 
 
-function list stackjob (const list L "List of series to stack",
+function scalar stackjob (const list L "List of series to stack",
                         const string series_name "Name of constructed series",
-                        const string series_description[null] "Description")
+                        const string series_description "Description",
+                        const string filename[null])
     /* Main job going on in the background. To the stacking, add data to the temporary data set and return list of stacked series plus some ID series.
     Return: In case of an error, return an empty list, otherwise non-empty list with stacked data. */
 
-    list RET
 
     if has_min_two_members(L) == FALSE
-        return RET
-    endif
-    if isvalid_filename(filename) == FALSE
-        return RET
+        return {}
     endif
 
     setobs 1 1 --cross-section 		# reset eventual index
@@ -66,16 +65,20 @@ function list stackjob (const list L "List of series to stack",
     catch dataset addobs add_T
     if $error
         printf "\nError: Failed to add new observations.\n"
-        return RET
+        return {}
     endif
 
     series @series_name = get_target_series(data_vector, series_name, series_description)
     series unit_id = get_unit_id_series(L)
     series obs_id = get_obs_id_series(L)
 
-    list RET = unit_id obs_id @series_name
+    list X = unit_id obs_id @series_name
 
-    return RET
+    if exists(filename)
+        scalar err_code = store_stacked_series(X, filename)
+    endif
+
+    return {X}
 end function
 
 
@@ -121,11 +124,16 @@ function scalar store_stacked_series (const list L "ID and stacked series",
                                       const string filename)
     /* Store dataset with stacked series. */
 
+    if nelem(L) == 0
+        printf "\nError: Nothing to store as list is empty."
+        return TRUE
+    endif
+
     catch store "@filename" L
     scalar err_code = $error
     if err_code
         printf "\nError: %s\n", errmsg(err_code)
-        return 1
+        return TRUE
     endif
 
     return 0

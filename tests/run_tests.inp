@@ -75,6 +75,8 @@ end function
 test_stack_data_failing(Parameters, L)
 
 
+open denmark.gdt -q -p
+list L = LRM LRY IBO
 function void test_stack_data_valid (const bundles P, const list L)
     print "Start testing stack_data() valid cases"
 
@@ -98,8 +100,11 @@ test_stack_data_valid(Parameters, L)
 # Part of test_stack_data_valid()
 scalar T = $nobs
 scalar k = nelem(L)
-open "foo.gdt" -q -p
+open "foo.gdt" -p # -q
+summary
 scalar expected_nobs = T * k
+expected_nobs
+eval $nobs
 assert(inlist(dataset, "some_cool_series") > 0)
 assert($nobs == expected_nobs)
 assert(missing(some_cool_series[1]) == TRUE)
