@@ -1,13 +1,20 @@
 set verbose off
 clear
 
-include stack_data.gfn
-open international_gdp.gdt --frompkg=stack_data --quiet
+# include stack_data.gfn
+set workdir "/home/ninja/repo/stack_data"
+include "./src/stack_data.inp" --force
+
+# open international_gdp.gdt --frompkg=stack_data --quiet
+open "./src/international_gdp.gdt"
 
 # Store stacked data
+matrix mdata
 list to_be_stacked = dataset
 string filename = "stacked_series.gdt"
-stack_data(to_be_stacked, filename, "gdp", "gdp for AU AT BE CA CH")
+stack_data(to_be_stacked, filename, "gdp", "gdp for AU AT BE CA CH", &mdata)
+print mdata
+stop
 
 # Open stacked data and set a panel
 open "@filename" -p -q
