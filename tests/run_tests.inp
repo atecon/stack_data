@@ -5,6 +5,35 @@ set assert stop
 include "./src/stack_data.inp" --force
 
 
+
+open denmark.gdt -q -p
+list L = LRM LRY IBO
+
+bundles Parameters = null
+Parameters = Parameters + _(list = "null", expected = 0)
+Parameters = Parameters + _(list = "LRM", expected = 0)
+Parameters = Parameters + _(list = "LRM LRY", expected = 1 * $nobs)
+Parameters = Parameters + _(list = "LRM LRY IBO", expected = 2 * $nobs)
+function void test_nobs_to_add (const bundles P, const list L)
+    print "Start testing function nobs_to_add()."
+
+    loop foreach i P
+        # Given
+        list X = null
+        string list_items = P[i].list
+        X = @list_items
+
+        # When
+        actual = nobs_to_add(X)
+
+        # Then
+        assert(actual == P[i].expected)
+    endloop
+end function
+test_nobs_to_add(Parameters, dataset)
+
+
+
 open denmark.gdt -q -p
 list L = LRM LRY IBO
 
@@ -52,27 +81,33 @@ end function
 test_get_obs_id_series(L)
 
 
-
-bundles Parameters = null
-Parameters = Parameters + _(list_items = "null", fname = "foo", expected = TRUE)
-Parameters = Parameters + _(list_items = "LRM", fname = "foo", expected = TRUE)
-Parameters = Parameters + _(list_items = "L", fname = "", expected = TRUE)
 open denmark.gdt -q -p
 list L = LRM LRY IBO
-function void test_stack_data_failing (const bundles P, const list L)
-    print "Start testing stack_data() failing cases"
+function void test_stack_matdata (const bundles P, const list L)
+    print "Start testing stack_matdata()"
 
-    loop foreach i P
-        list X = null
-        string list_str = P[i].list_items
-        X = @list_str
+    string filename = "foo.gdt"
+    series a = L[1]
+    series b = L[2]
+    series c = L[3]
+    a[1] = NA
+    b[10] = NA
+    list IN = a b c
 
-        scalar actual = stack_data(X, P[i].fname)
+    scalar expected_rows = nelem(L) * $nobs
+    strings expected_collabels = defarray("unit_id",\
+                                "obs_id", "some_cool_series")
 
-        assert(actual == P[i].expected)
+    matrix actual = stack_matdata(IN,  "some_cool_series")
+    actual_rows = rows(actual)
+    strings actual_collabels = cnameget(actual)
+
+    assert(actual_rows == expected_rows)
+    loop foreach j actual_collabels
+        assert("$j" == expected_collabels[j])
     endloop
 end function
-test_stack_data_failing(Parameters, L)
+test_stack_matdata(Parameters, L)
 
 
 open denmark.gdt -q -p
@@ -97,19 +132,44 @@ function void test_stack_data_valid (const bundles P, const list L)
 end function
 test_stack_data_valid(Parameters, L)
 
+
+bundles Parameters = null
+Parameters = Parameters + _(list_items = "null", fname = "foo", expected = TRUE)
+Parameters = Parameters + _(list_items = "LRM", fname = "foo", expected = TRUE)
+Parameters = Parameters + _(list_items = "L", fname = "", expected = TRUE)
+open denmark.gdt -q -p
+list L = LRM LRY IBO
+function void test_stack_data_failing (const bundles P, const list L)
+    print "Start testing stack_data() failing cases"
+
+    loop foreach i P
+        list X = null
+        string list_str = P[i].list_items
+        X = @list_str
+
+        scalar actual = stack_data(X, P[i].fname)
+
+        assert(actual == P[i].expected)
+    endloop
+end function
+test_stack_data_failing(Parameters, L)
+
+
+
+
 # Part of test_stack_data_valid()
 scalar T = $nobs
 scalar k = nelem(L)
 open "foo.gdt" -p # -q
-summary
 scalar expected_nobs = T * k
-expected_nobs
-eval $nobs
+
 assert(inlist(dataset, "some_cool_series") > 0)
 assert($nobs == expected_nobs)
 assert(missing(some_cool_series[1]) == TRUE)
 assert(missing(some_cool_series[T+10]) == TRUE)
 print "All tests passed for stack_data()"
+
+
 
 
 open "denmark.gdt" --quiet

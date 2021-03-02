@@ -10,9 +10,7 @@ function matrix stack_matdata (const list L "List of series to stack",
         string series_description = ""
     endif
 
-    list R = stackjob(L, series_name, series_description)
-
-    return {R}
+    return stackjob(L, series_name, series_description)
 end function
 
 
@@ -34,51 +32,59 @@ function scalar stack_data (const list L "List of series to stack",
         return TRUE
     endif
 
-    scalar err_code = stackjob(L, series_name, series_description, filename)
+    matrix stacked = stackjob(L, series_name, series_description)
 
-    return err_code
+    setobs 1 1 --cross-section      # reset eventual index
+    scalar add_T = nobs_to_add(L)
+
+    if rows(stacked) != ($nobs + add_T)
+        printf "\nError: Dimensions do not fit.\n"
+        return TRUE
+    endif
+    dataset addobs add_T
+
+    assert($nobs == rows(stacked))
+    list X = stacked
+
+    return store_stacked_series(X, filename)
 end function
 
 
-function scalar stackjob (const list L "List of series to stack",
-                        const string series_name "Name of constructed series",
-                        const string series_description "Description",
-                        const string filename[null])
+
+function matrix stackjob (const list L "List of series to stack",
+                          const string series_name "Name of constructed series",
+                          const string series_description "Description")
     /* Main job going on in the background. To the stacking, add data to the temporary data set and return list of stacked series plus some ID series.
     Return: In case of an error, return an empty list, otherwise non-empty list with stacked data. */
 
+    list R
+    matrix mR
 
     if has_min_two_members(L) == FALSE
-        return {}
+        return mR
     endif
 
-    setobs 1 1 --cross-section 		# reset eventual index
-    scalar T = $nobs
-    scalar n_L = nelem(L) - 1
-    scalar add_T = T * n_L
-
-    # NAs will not be dropped when converting from series to vector
+    # Make sure NAs are not dropped when converting from series to vector
     set skip_missing off
     matrix data_vector = vec({L})
-    set skip_missing on
 
+    setobs 1 1 --cross-section      # reset eventual index
+    scalar add_T = nobs_to_add(L)
     catch dataset addobs add_T
     if $error
         printf "\nError: Failed to add new observations.\n"
-        return {}
+        return mR
     endif
 
+    R += genseries("unit_id", get_unit_id_series(L))
+    R += genseries("obs_id", get_obs_id_series(L))
     series @series_name = get_target_series(data_vector, series_name, series_description)
-    series unit_id = get_unit_id_series(L)
-    series obs_id = get_obs_id_series(L)
+    R += @series_name
 
-    list X = unit_id obs_id @series_name
+    matrix mR = {R}
+    set skip_missing on
 
-    if exists(filename)
-        scalar err_code = store_stacked_series(X, filename)
-    endif
-
-    return {X}
+    return mR
 end function
 
 
@@ -152,6 +158,7 @@ function scalar has_min_two_members (const list L)
     return TRUE
 end function
 
+
 function scalar isvalid_filename (const string f)
     /* Check that 'f' is a non-empty string.
     Return: TRUE if it is valid, otherwise FALSE. */
@@ -162,4 +169,16 @@ function scalar isvalid_filename (const string f)
     endif
 
     return TRUE
+end function
+
+
+function scalar nobs_to_add (const list L)
+    /* Compute number of observations to add to data set. */
+
+    if nelem(L)
+        scalar T = $nobs
+        scalar n_L = nelem(L) - 1
+        return T * n_L
+    endif
+    return 0
 end function
