@@ -107,6 +107,46 @@ assert(missing(some_cool_series[T+10]) == TRUE)
 print "All tests passed for stack_data()"
 
 
+open "denmark.gdt" --quiet
+bundles Parameters = null
+Parameters = Parameters + _(list_def = "null", expected = FALSE)
+Parameters = Parameters + _(list_def = "LRM", expected = FALSE)
+Parameters = Parameters + _(list_def = "LRM LRY", expected = TRUE)
+function void test_has_min_two_members (const bundles P, const list L)
+    print "Start testing function has_min_two_members()."
+
+    loop foreach i P
+        # Given + When
+        list L = null
+        string members = P[i].list_def
+        L = @members
+
+        # When
+        actual = has_min_two_members(L)
+
+        # Then
+        assert(actual == P[i].expected)
+    endloop
+end function
+test_has_min_two_members(Parameters, dataset)
+
+
+bundles Parameters = null
+Parameters = Parameters + _(filename = "", expected = FALSE)
+Parameters = Parameters + _(filename = " foo", expected = TRUE)
+Parameters = Parameters + _(filename = "foo", expected = TRUE)
+function void test_isvalid_filename (const bundles P)
+    print "Start testing function isvalid_filename()."
+
+    loop foreach i P
+        # Given + When
+        actual = isvalid_filename(P[i].filename)
+
+        # Then
+        assert(actual == P[i].expected)
+    endloop
+end function
+test_isvalid_filename(Parameters)
 
 
 

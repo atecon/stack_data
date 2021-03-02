@@ -1,3 +1,36 @@
+function matrix stack_matdata (const list L "List of series to stack",
+                            const string series_name[null] "Name of constructed series")
+    /* /* Vertically stack data of L into a single series and return stacked data as matrix.
+    return: Empty matrix in case of an error, otherwise matrix including stacked data. */
+
+
+end function
+
+function scalar has_min_two_members (const list L)
+    /* Check that 'L' has at least two members.
+    Return: TRUE if L has at least two members, otherwise FALSE. */
+
+    if nelem(L) < 2
+        printf "\nError: Input list needs at least two members.\n"
+        return FALSE
+    endif
+
+    return TRUE
+end function
+
+function scalar isvalid_filename (const string f)
+    /* Check that 'f' is a non-empty string.
+    Return: TRUE if it is valid, otherwise FALSE. */
+
+    if strlen(f) == 0
+        printf "\nError: Invalid filename '%s'.\n", f
+        return FALSE
+    endif
+
+    return TRUE
+end function
+
+
 function scalar stack_data (const list L "List of series to stack",
                             const string filename "Full path + filename of new dataset",
                             const string series_name[null] "Name of constructed series",
@@ -6,13 +39,11 @@ function scalar stack_data (const list L "List of series to stack",
        store the resulting series.
     return: 0 if extended dataset is succesfully stored; 1 otherwise. */
 
-    if nelem(L) < 2
-        printf "\nError: Input list needs at least two members.\n"
-        return 1
+    if has_min_two_members(L) == FALSE
+        return TRUE
     endif
-    if strlen(filename) == 0
-        printf "\nError: Invalid filename.\n"
-        return 1
+    if isvalid_filename(filename) == FALSE
+        return TRUE
     endif
     if !exists(series_name)
         string series_name = "stacked_series"
@@ -41,6 +72,11 @@ function scalar stack_data (const list L "List of series to stack",
     series obs_id = get_obs_id_series(L)
 
     list FINAL = unit_id obs_id @series_name
+
+    if exists(matdata)
+        matdata = {FINAL}
+    endif
+
     scalar err_code = store_stacked_series(FINAL, filename)
 
     return err_code
@@ -51,7 +87,7 @@ function series get_target_series (const matrix data_vector,
                                    const string series_name,
                                    const string series_description)
     /* Convert vector to series and add a series description. */
-    
+
     genseries(series_name, data_vector)
     setinfo @series_name --description="@series_description"
 
