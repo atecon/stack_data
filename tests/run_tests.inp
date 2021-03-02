@@ -36,7 +36,6 @@ test_nobs_to_add(Parameters, dataset)
 
 open denmark.gdt -q -p
 list L = LRM LRY IBO
-
 function void test_get_unit_id_series (const list L)
     print "Start testing get_unit_id_series()"
 
@@ -83,7 +82,7 @@ test_get_obs_id_series(L)
 
 open denmark.gdt -q -p
 list L = LRM LRY IBO
-function void test_stack_matdata (const bundles P, const list L)
+function void test_stack_matdata_valid (const bundles P, const list L)
     print "Start testing stack_matdata()"
 
     string filename = "foo.gdt"
@@ -107,7 +106,34 @@ function void test_stack_matdata (const bundles P, const list L)
         assert("$j" == expected_collabels[j])
     endloop
 end function
-test_stack_matdata(Parameters, L)
+test_stack_matdata_valid(Parameters, L)
+
+
+bundles Parameters = null
+Parameters = Parameters + _(list_items = "null", series_name = "foo",\
+                            expected_nelem = 0)
+Parameters = Parameters + _(list_items = "LRM", series_name = "foo",\
+                            expected_nelem = 0)
+Parameters = Parameters + _(list_items = "L", series_name = "",\
+                            expected_nelem = 0)
+open denmark.gdt -q -p
+list L = LRM LRY IBO
+function void test_stack_matdata_failing (const bundles P, const list L)
+    print "Start testing stack_data() failing cases."
+
+    loop foreach i P
+        list X = null
+        string list_str = P[i].list_items
+        X = @list_str
+
+        matrix actual = stack_matdata(X, P[i].series_name)
+        actual_nelem = nelem(actual)
+
+        assert(actual_nelem == P[i].expected_nelem)
+    endloop
+end function
+test_stack_matdata_failing(Parameters, L)
+
 
 
 open denmark.gdt -q -p
@@ -200,18 +226,68 @@ bundles Parameters = null
 Parameters = Parameters + _(filename = "", expected = FALSE)
 Parameters = Parameters + _(filename = " foo", expected = TRUE)
 Parameters = Parameters + _(filename = "foo", expected = TRUE)
-function void test_isvalid_filename (const bundles P)
-    print "Start testing function isvalid_filename()."
+function void test_isnonempty_string (const bundles P)
+    print "Start testing function isnonempty_string()."
 
     loop foreach i P
         # Given + When
-        actual = isvalid_filename(P[i].filename)
+        actual = isnonempty_string(P[i].filename)
 
         # Then
         assert(actual == P[i].expected)
     endloop
 end function
-test_isvalid_filename(Parameters)
+test_isnonempty_string(Parameters)
+
+
+nulldata 3 -p
+function void test_get_target_series (void)
+    print "Start testing get_target_series()"
+
+    # Given
+    matrix m = mnormal($nobs, 1)
+    string expected_name = "feature"
+    string expected_description = "some description"
+
+    # When
+    series @expected_name = get_target_series(m, expected_name, expected_description)
+
+    actual_description = getinfo(@expected_name).description
+
+    # Then
+    assert(inlist(dataset, @expected_name))
+    assert(sum(@expected_name) == sum(m))
+    assert(actual_description == expected_description)
+end function
+test_get_target_series()
+
+
+
+open denmark.gdt -q
+bundles Parameters = null
+Parameters = Parameters + _(list_items = "null",\
+                            filename = "foo",\
+                            expected = TRUE)
+Parameters = Parameters + _(list_items = "LRM",\
+                            filename = "foo",\
+                            expected = FALSE)
+function void test_store_stacked_series (const bundles P, const list L)
+    print "Start testing function name"
+
+    loop foreach i P
+        # Given
+        list X = null
+        string vars = P[i].list_items
+        X = @vars
+
+        # When
+        actual = store_stacked_series(X, P[i].filename)
+
+        # Then
+        assert(actual == P[i].expected)
+    endloop
+end function
+test_store_stacked_series(Parameters, dataset)
 
 
 

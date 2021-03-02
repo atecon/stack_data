@@ -1,5 +1,5 @@
 function matrix stack_matdata (const list L "List of series to stack",
-                            const string series_name[null] "Name of constructed series")
+                               const string series_name[null] "Name of constructed series")
     /* Vertically stack data of 'L' into a single series and return stacked data as matrix.
     return: Empty matrix in case of an error, otherwise matrix including stacked data. */
 
@@ -8,6 +8,9 @@ function matrix stack_matdata (const list L "List of series to stack",
     endif
     if !exists(series_description)
         string series_description = ""
+    endif
+    if isnonempty_string(series_name) == FALSE
+        return {}
     endif
 
     return stackjob(L, series_name, series_description)
@@ -28,7 +31,7 @@ function scalar stack_data (const list L "List of series to stack",
     if !exists(series_description)
         string series_description = ""
     endif
-    if isvalid_filename(filename) == FALSE
+    if isnonempty_string(filename) == FALSE
         return TRUE
     endif
 
@@ -128,21 +131,21 @@ end function
 
 function scalar store_stacked_series (const list L "ID and stacked series",
                                       const string filename)
-    /* Store dataset with stacked series. */
+    /* Store dataset with stacked series.
+    Return: FALSE if no error occured, otherwise TRUE. */
 
     if nelem(L) == 0
-        printf "\nError: Nothing to store as list is empty."
+        printf "\nError: Nothing to store as list is empty.\n"
         return TRUE
     endif
 
     catch store "@filename" L
-    scalar err_code = $error
-    if err_code
+    if $error
         printf "\nError: %s\n", errmsg(err_code)
         return TRUE
     endif
 
-    return 0
+    return FALSE
 end function
 
 
@@ -159,7 +162,7 @@ function scalar has_min_two_members (const list L)
 end function
 
 
-function scalar isvalid_filename (const string f)
+function scalar isnonempty_string (const string f)
     /* Check that 'f' is a non-empty string.
     Return: TRUE if it is valid, otherwise FALSE. */
 
