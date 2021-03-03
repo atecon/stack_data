@@ -2,7 +2,7 @@ set verbose off
 clear
 
 # include stack_data.gfn
-set workdir "/home/ninja/repo/stack_data"
+set workdir "/home/at/git/stack_data"
 include "./src/stack_data.inp" --force
 
 # open international_gdp.gdt --frompkg=stack_data --quiet
@@ -13,9 +13,9 @@ open grunfeld.gdt -q -p
 genr unit
 smpl unit <= 3 --restrict
 # matrix mat = unstack(invest)
-#matrix mat = unstack(invest, firmname)
+matrix mat = unstack(invest, firmname)
 #matrix mat = unstack(invest, null, defarray("A", "B", "C"))
-matrix mat = unstack(invest, null, defarray("A", "B"))
+#matrix mat = unstack(invest, null, defarray("A", "B"))
 #matrix mat = unstack(invest, _(names=firmname))
 mat
 stop

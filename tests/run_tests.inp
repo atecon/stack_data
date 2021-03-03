@@ -339,22 +339,62 @@ end function
 test_isvalid_names_array(Parameters)
 
 
-** HIER WEITERMACHEN
-function void test_unstack ()
-    print "Start testing function name"
+open grunfeld.gdt -q -p
+genr unit
+genr time
+smpl unit <= 2 && time <= 2 --restrict --permanent
+bundles Parameters = null
+Parameters = Parameters + \
+            _(\
+                target = "invest",\
+                group_series = "firmname",\
+                expected_clabels = defarray("General Motors",\
+                                            "US Steel"),\
+                expected_values = {317.6, 209.9; 391.8, 355.3}\
+            )
+Parameters = Parameters + \
+            _(\
+                target = "invest",\
+                group_array = defarray("A", "B"),\
+                expected_clabels = defarray("A", "B"),\
+                expected_values = {317.6, 209.9; 391.8, 355.3}\
+            )
+Parameters = Parameters + \
+            _(\
+                target = "invest",\
+                expected_clabels = array(0),\
+                expected_values = {317.6, 209.9; 391.8, 355.3}\
+            )
+function void test_unstack (const bundles P, const list L)
+    print "Start testing unstack"
 
-    # Given
-    given
+    loop foreach i P
+        # Given
+        string endog = P[i].target
+        if inbundle(P[i], "group_series")
+            string group_name = P[i].group_series
+            series group_series = L.@group_name
+            # When
+            actual_values = unstack(L.@endog, group_series)
+        elif inbundle(P[i], "group_array")
+            actual_values = unstack(L.@endog, null, P[i].group_array)
+        else
+            actual_values = unstack(L.@endog)
+        endif
 
+        actual_clabels = cnameget(actual_values)
 
-    # When
-    when
-
-
-    # Then
-    then
+        # Then
+        matrix sum_mdiff = sum(actual_values .- P[i].expected_values)
+        assert(sum_mdiff < 1)
+        if nelem(actual_clabels) > 0
+            loop j=1..nelem(P[i].expected_clabels)
+                assert(actual_clabels[j] == P[i].expected_clabels[j])
+            endloop
+        endif
+    endloop
 end function
-test_unstack()
+test_unstack(Parameters, dataset)
 
 
 

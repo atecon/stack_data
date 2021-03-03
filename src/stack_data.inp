@@ -25,7 +25,7 @@ function matrix unstack (const series x "Series to unstack",
         matrix num_string_ids = uniq(names)         # ordering could be garbled
     endif
 
-    if exists(names_array)
+    if exists(num_string_ids)
         strings clabels = compile_unstack_clabels(names_array, N, num_string_ids)
         cnameset(mat, clabels)
     endif
