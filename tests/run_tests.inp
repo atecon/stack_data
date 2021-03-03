@@ -290,6 +290,77 @@ end function
 test_store_stacked_series(Parameters, dataset)
 
 
+open grunfeld.gdt -q
+genr unit
+smpl unit <= 3 --restrict --permanent
+scalar N = $nobs / $pd
+bundles Parameters = null
+Parameters = Parameters + _(name_series = strvals(firmname),\
+                            N = N,\
+                            num_string_ids = seq(1, N)',
+                            expected = strvals(firmname))
+Parameters = Parameters + _(name_series = strvals(firmname)[1:2],\
+                            N = N,\
+                            num_string_ids = seq(1, N)',
+                            expected = "")
+function void test_compile_unstack_clabels (const bundles P, const list L)
+    print "Start testing function compile_unstack_clabels()."
+
+    loop foreach i P
+        # Given + when
+        actual = compile_unstack_clabels(P[i].name_series, P[i].N,\
+                                         P[i].num_string_ids)
+
+        # Then
+        loop j=1..nelem(actual)
+            assert(actual[j] == P[i].expected[j])
+        endloop
+    endloop
+end function
+test_compile_unstack_clabels(Parameters, dataset)
+
+
+bundles Parameters = null
+Parameters = Parameters + _(names_array = defarray("A", "B"),\
+                            N = 2, expected = TRUE)
+Parameters = Parameters + _(names_array = defarray("A"),\
+                            N = 2, expected = FALSE)
+function void test_isvalid_names_array (const bundles P)
+    print "Start testing function isvalid_names_array()."
+
+    loop foreach i P
+        # Given + When
+        actual = isvalid_names_array(P[i].names_array, P[i].N)
+
+        # Then
+        assert(actual == P[i].expected)
+    endloop
+end function
+test_isvalid_names_array(Parameters)
+
+
+** HIER WEITERMACHEN
+function void test_unstack ()
+    print "Start testing function name"
+
+    # Given
+    given
+
+
+    # When
+    when
+
+
+    # Then
+    then
+end function
+test_unstack()
+
+
+
+
 
 
 printf "\nInfo: All tests passed.\n"
+
+
