@@ -346,45 +346,39 @@ smpl unit <= 2 && time <= 2 --restrict --permanent
 bundles Parameters = null
 Parameters = Parameters + \
             _(\
-                target = "invest",\
                 group_series = "firmname",\
                 expected_clabels = defarray("obs", "General Motors",\
                                             "US Steel"),\
-                expected_values = {317.6, 209.9; 391.8, 355.3}\
+                expected_values = {1, 317.6, 209.9; 2, 391.8, 355.3}\
             )
 Parameters = Parameters + \
             _(\
-                target = "invest",\
-                group_array = defarray("obs", "A", "B"),\
-                expected_clabels = defarray("A", "B"),\
-                expected_values = {317.6, 209.9; 391.8, 355.3}\
+                group_array = defarray("A", "B"),\
+                expected_clabels = defarray("obs", "A", "B"),\
+                expected_values = {1, 317.6, 209.9; 2, 391.8, 355.3}\
             )
 Parameters = Parameters + \
             _(\
-                target = "invest",\
                 expected_clabels = array(0),\
-                expected_values = {317.6, 209.9; 391.8, 355.3}\
+                expected_values = {1, 317.6, 209.9; 2, 391.8, 355.3}\
             )
-function void test_unstack (const bundles P, const list L)
+function void test_unstack (const bundles P, const series endog,
+                            const series firmname)
     print "Start testing unstack"
 
     loop foreach i P
-        printf "\nStep %d\n", $i
         # Given
-        string endog = P[i].target
         if inbundle(P[i], "group_series")
             string group_name = P[i].group_series
-            series group_series = L.@group_name
             # When
-            actual_values = unstack(L.@endog, group_series)
+            actual_values = unstack(endog, firmname)
         elif inbundle(P[i], "group_array")
-            actual_values = unstack(L.@endog, null, P[i].group_array)
+            actual_values = unstack(endog, null, P[i].group_array)
         else
-            actual_values = unstack(L.@endog)
+            actual_values = unstack(endog)
         endif
 
         actual_clabels = cnameget(actual_values)
-        actual_clabels
 
         # Then
         matrix sum_mdiff = sum(actual_values .- P[i].expected_values)
@@ -396,7 +390,7 @@ function void test_unstack (const bundles P, const list L)
         endif
     endloop
 end function
-test_unstack(Parameters, dataset)
+test_unstack(Parameters, invest, firmname)
 
 
 
