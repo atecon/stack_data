@@ -77,7 +77,7 @@ Matrix of dimension T by (1 + k).
 
 
 Changelog:
-- v1.0, April 2020:
+- v1.0, March 2021:
     + new unstack() function as proposed by Riccardo "Jack" Lucchetti
     + new stack_matdata() function
     + functions are tested by means of unit-tests
