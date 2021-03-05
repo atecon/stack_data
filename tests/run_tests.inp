@@ -348,14 +348,14 @@ Parameters = Parameters + \
             _(\
                 target = "invest",\
                 group_series = "firmname",\
-                expected_clabels = defarray("General Motors",\
+                expected_clabels = defarray("obs", "General Motors",\
                                             "US Steel"),\
                 expected_values = {317.6, 209.9; 391.8, 355.3}\
             )
 Parameters = Parameters + \
             _(\
                 target = "invest",\
-                group_array = defarray("A", "B"),\
+                group_array = defarray("obs", "A", "B"),\
                 expected_clabels = defarray("A", "B"),\
                 expected_values = {317.6, 209.9; 391.8, 355.3}\
             )
@@ -369,6 +369,7 @@ function void test_unstack (const bundles P, const list L)
     print "Start testing unstack"
 
     loop foreach i P
+        printf "\nStep %d\n", $i
         # Given
         string endog = P[i].target
         if inbundle(P[i], "group_series")
@@ -383,6 +384,7 @@ function void test_unstack (const bundles P, const list L)
         endif
 
         actual_clabels = cnameget(actual_values)
+        actual_clabels
 
         # Then
         matrix sum_mdiff = sum(actual_values .- P[i].expected_values)

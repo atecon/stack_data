@@ -1,45 +1,33 @@
 set verbose off
 clear
 
-# include stack_data.gfn
-set workdir "/home/at/git/stack_data"
-include "./src/stack_data.inp" --force
+include stack_data.gfn
 
-# open international_gdp.gdt --frompkg=stack_data --quiet
-#open "./src/international_gdp.gdt"
 
-# unstack
-open grunfeld.gdt -q -p
+# unstack some panel data set
+open grunfeld.gdt --quiet
 genr unit
-smpl unit <= 3 --restrict
-# matrix mat = unstack(invest)
-matrix mat = unstack(invest, firmname)
-#matrix mat = unstack(invest, null, defarray("A", "B", "C"))
-#matrix mat = unstack(invest, null, defarray("A", "B"))
-#matrix mat = unstack(invest, _(names=firmname))
-mat
-stop
+smpl unit <= 3 --restrict   # decrease sample
+# Pass only the series to be unstacked
+matrix mat = unstack(invest)
+print mat
+# Pass string-valued group series 'firmname'
+eval unstack(invest, firmname)
+# Passt array of column names alternatively
+eval  unstack(invest, null, defarray("A", "B", "C"))
 
-# save as a dataset and reopen it
-
-y0 = sprintf("%d", min(year))
-fname = "@dotdir/tmp.gdt"
-store "@fname" --matrix=mat
-open "@fname" --preserve
-setobs 1 @y0
+# Stack and store data as matrix
+open international_gdp.gdt --frompkg=stack_data --quiet
+list to_be_stacked = dataset
+matrix stacked = stack_matdata(to_be_stacked, "gdp")
+print stacked
 
 
-
-
-
-
-# Store stacked data
-matrix mdata
+# Stack and store stacked data set
+open international_gdp.gdt --frompkg=stack_data --quiet
 list to_be_stacked = dataset
 string filename = "stacked_series.gdt"
-stack_data(to_be_stacked, filename, "gdp", "gdp for AU AT BE CA CH", &mdata)
-print mdata
-stop
+stack_data(to_be_stacked, filename, "gdp", "gdp for AU AT BE CA CH")
 
 # Open stacked data and set a panel
 open "@filename" -p -q
@@ -49,7 +37,6 @@ stringify(country_name, defarray("AU", "AT", "BE", "CA", "CH"))
 
 setobs unit_id obs_id --panel-vars
 print unit_id country_name obs_id gdp -o
-
 
 # Note: You may easily join another data set using the keys 'unit_id' and 'obs_id'
 # EXAMPLE: <join somne_data.gdt --ikey=unit_id,obs_id --okey=some_unit_key,some_obs_key>

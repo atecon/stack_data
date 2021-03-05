@@ -10,7 +10,8 @@ function matrix unstack (const series x "Series to unstack",
     strings clabels = array(N)
 
     set skip_missing off
-    matrix mat = mshape({x}, $pd, N)
+    # TODO: you may also grab series $obsdate and use it as the 1st column
+    matrix mat = values(time) ~ mshape({x}, $pd, N)
     set skip_missing on
 
     if exists(names_array)
@@ -21,12 +22,15 @@ function matrix unstack (const series x "Series to unstack",
         endif
     endif
     if exists(names)
-        strings names_array = strvals(names)    # overwrite eventual 'names_array'
-        matrix num_string_ids = uniq(names)         # ordering could be garbled
+        # overwrite eventual 'names_array'
+        strings names_array = strvals(names)
+        matrix num_string_ids = uniq(names)  # ordering could be garbled
     endif
 
     if exists(num_string_ids)
-        strings clabels = compile_unstack_clabels(names_array, N, num_string_ids)
+        strings clabels = compile_unstack_clabels(names_array, N,\
+                                                  num_string_ids)
+        clabels = defarray("obs") + clabels
         cnameset(mat, clabels)
     endif
 

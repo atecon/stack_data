@@ -1,7 +1,6 @@
 PKG =  stack_data
 
-
-$(PKG).gfn: $(PKG).inp $(PKG).spec $(PKG)_sample.inp
+$(PKG).gfn: $(PKG).inp $(PKG).spec $(PKG)_sample.inp $(PKG)_help.txt
 	gretlcli --makepkg $(PKG).inp
 
 $(PKG).zip: $(PKG).gfn international_gdp.gdt
@@ -12,4 +11,4 @@ install: $(PKG).zip
 	echo pkg install $(PKG).zip --local | gretlcli -b -
 
 clean:
-	rm -f $(PKG).zip
+	rm -f $(PKG).zip $(PKG).gfn

@@ -1,39 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gretl-functions>
-<gretl-function-package name="stack_data" minver="2019b" lives-in-subdir="true">
+<gretl-function-package name="stack_data" minver="2020b" lives-in-subdir="true">
 <author email="atecon@posteo.de">Artur Tarassow</author>
-<version>0.9</version>
-<date>2020-04-17</date>
+<version>1.0</version>
+<date>2021-03-05</date>
 <description>Stack list of series</description>
 <tags>C81</tags>
 <help>
+This package delivers functions for &quot;un-stacking&quot; a panel data set, and for stacking a time-series data set.
+
+The unstack() function has no built-in gretl counterpart. Ths function isolates the unit-specific time-series of a panel data set with k units into separate columns of a matrix.
+
+Since gretl version 2020b, the built-in stack() function has got new cool features, namely the &quot;offset&quot; and &quot;n&quot; parameters (see for details: http://gretl.sourceforge.net/gretl-help/funcref.html#stack).
+
+The stack_data() function proposed here, however, may still be helpful for some applications. First, it can be applied within both a loop-block and a function-block, respectively. While the built-in stack() function can be applied in a loop-block since gretl version 2020b, it is not applicable within a function-block as the dimension of the data set cannot be changed by a some statement within a function-block.
+
+The stack_data() does its operation not in-memory but rather stores the stacked data set in a separate data file. It simply stacks k series (each of length T) vertically, and adds the two identifier series: (1) 'unit_id' (unique integer identifying each of the k series) and (2) 'obs_id' (running number referring to each of T observations). Both, 'unit_id' and 'obs_id' may be helpful in case the user wants to define the stacked data as a panel data set, and/ or join another data set by means of gretl's built-in 'join' command.
+
+The stack_matdata(), in contrast, does its operation in-memory and returns a matrix to the user instead. This may be useful if you operate with large data sets.
+
 Please ask questions and report bugs on the gretl mailing list if possible.
 
 Source code and test script(s) can be found here:
-https://github.com/atecon/stack
+https://github.com/atecon/stack_data
 
-Since gretl 2020b, the built-in stack() function has got new cool features, namely the &quot;offset&quot; and &quot;n&quot; parameters (see for details: http://gretl.sourceforge.net/gretl-help/funcref.html#stack).
 
-The stack_data() function proposed here, however, may still be helpfull for some applications. First, it can be applied within both a loop-block and a function-block, respectively. While the built-in stack() function can be applied in a loop-block since gretl version 2020b, it is not applicable within a function-block as the dimension of the data set cannot be changed by a some statement within a function-block.
-
-The stack_data() does its operation not in-memory but rather stores the stacked data set in a separate data file. It simply stacks k series (each of length T) vertically, and adds the two identifier series: (1) 'unit_id' (unique integer identifying each of the k series) and (2) 'obs_id' (running number refering to each of T observations). Both, 'unit_id' and 'obs_id' may be helpful in case the user wants to define the stacked data as a panel data set, and/ or join another data set by means of gretl's built-in 'join' command.
-
+=================
+PUBLIC FUNCTIONS
+=================
 
 stack_data(L, filename, series_name, series_description):
---------------
-Vertically stack data of list L into a single series and store the resulting series. The stored data set includes three series: (1) &quot;unit_id&quot; is an identifier referring to the i-th stacked series, (2) &quot;obs_id&quot; is a unit-specific running number from 1 to T identifier, and (3) the stacked series itself.
+=========================================================
+Vertically stack data of list L into a single series and store the
+resulting series. The returned matrix includes three series: (1) &quot;unit_id&quot;
+is a numeric identifier referring to the i-th stacked series, (2) &quot;obs_id&quot;
+is a unit-specific running number from 1 to T identifier, and (3) the
+stacked series itself.
 
 Arguments:
-List 			- list, List of series to stack
-filename		- string, Full path plus filename where to store data set
-series_name		- string, Name of compiled series (optional, default: &quot;stacked_series&quot;)
-series_description	- string, Set the variable's descriptive label (optional, default: &quot;&quot;)
+L               - list, List of series to stack
+filename        - string, Full path plus filename where to store data set
+series_name     - string, Name of compiled series (optional, default:
+                  &quot;stacked_series&quot;)
+series_description	- string, Set the variable's descriptive label
+                      (optional, default: &quot;&quot;)
 
 Return:
-If the stacked data set is succesfully stored, return 0, 1 otherwise.
+If the stacked data set is successfully stored, return 0, 1 otherwise.
+
+
+stack_matdata(L, series_name[null]):
+====================================
+Works as the stack_data() function but returns a matrix instead. The
+matrix comprises three columns: (1) &quot;unit_id&quot; is an index referring
+to the i-th stacked series, (2) &quot;obs_id&quot; is a unit-specific running number
+from 1 to T (observations) index, and (3) the stacked series itself.
+
+Arguments:
+L               - list, List of series to stack
+series_name     - string, Name of compiled series (optional, default:
+                  &quot;stacked_series&quot;)
+
+Return:
+Non-empty matrix on success, otherwise empty matrix.
+
+
+unstack(x, series_name[null], names_array[null]):
+=================================================
+Works only for panel-data. For a panel with k units and T unit-specific
+observations, series x is reshaped to a T by (1+k) matrix. The first
+column refers to the observational index, while the remaining columns
+refer to grouped values of x.
+
+The columns of the resulting matrix may include labels if either (i) a string-valued series 'series_names' or (ii) a string array with k
+elements is provided. If both 'series_names' and 'names_array' are
+provided and are valid inputs, 'series_names' dominates.
+
+Arguments:
+x               - series, Series to unstack
+series_names    - series, String-valued series of unit names (optional)
+names_array     - strings, Array of names for each panel unit (optional).
+
+Return:
+Matrix of dimension T by (1 + k).
 
 
 Changelog:
+- v1.0, April 2020:
+    + new unstack() function as proposed by Riccardo &quot;Jack&quot; Lucchetti
+    + new stack_matdata() function
+    + functions are tested by means of unit-tests
+    + update documentation
+    + new gretl version required is 2020b
+    + internal re-factorings
 - v0.9, April 2020:
     + initial release
 </help>
@@ -57,38 +116,164 @@ international_gdp.gdt </data-files>
 <code>/* Vertically stack data of L into a single series and
 store the resulting series.
 return: 0 if extended dataset is succesfully stored; 1 otherwise. */
-if nelem(L) &lt; 2
-  printf &quot;\nError: Input list needs at least two members.\n&quot;
-  return 1
-endif
-if strlen(filename) == 0
-  printf &quot;\nError: Invalid filename.\n&quot;
-  return 1
-endif
 if !exists(series_name)
   string series_name = &quot;stacked_series&quot;
 endif
 if !exists(series_description)
   string series_description = &quot;&quot;
 endif
-setobs 1 1 --cross-section 		# reset eventual index
-scalar T = $nobs
-scalar n_L = nelem(L) - 1
-scalar add_T = T * n_L
-set skip_missing off			# NAs will not be dropped when converting from series to vector
-matrix data_vector = vec({L})
+if isnonempty_string(filename) == FALSE
+  return TRUE
+endif
+matrix stacked = stackjob(L, series_name, series_description)
+setobs 1 1 --cross-section      # reset eventual index
+scalar add_T = nobs_to_add(L)
+if rows(stacked) != ($nobs + add_T)
+  printf &quot;\nError: Dimensions do not fit.\n&quot;
+  return TRUE
+endif
+dataset addobs add_T
+assert($nobs == rows(stacked))
+list X = stacked
+return store_stacked_series(X, filename)
+</code>
+</gretl-function>
+<gretl-function name="stack_matdata" type="matrix">
+ <params count="2">
+  <param name="L" type="list" const="true">
+<description>List of series to stack</description>
+  </param>
+  <param name="series_name" type="string" optional="true" const="true">
+<description>Name of constructed series</description>
+  </param>
+ </params>
+<code>/* Vertically stack data of 'L' into a single series and return stacked data as matrix.
+return: Empty matrix in case of an error, otherwise matrix including stacked data. */
+if !exists(series_name)
+  string series_name = &quot;stacked_series&quot;
+endif
+if !exists(series_description)
+  string series_description = &quot;&quot;
+endif
+if isnonempty_string(series_name) == FALSE
+  return {}
+endif
+return stackjob(L, series_name, series_description)
+</code>
+</gretl-function>
+<gretl-function name="unstack" type="matrix">
+ <params count="3">
+  <param name="x" type="series" const="true">
+<description>Series to unstack</description>
+  </param>
+  <param name="names" type="series" optional="true" const="true">
+<description>Series holding group names</description>
+  </param>
+  <param name="names_array" type="strings" optional="true">
+<description>Array of group names alternative</description>
+  </param>
+ </params>
+<code>/* Unstack a panel series such that a series for each unit becomes a separate column vector. */
+errorif($datatype != 3, &quot;This function needs panel data.&quot;)
+matrix ret
+scalar N = $nobs / $pd
+strings clabels = array(N)
+set skip_missing off
+# TODO: you may also grab series $obsdate and use it as the 1st column
+matrix mat = values(time) ~ mshape({x}, $pd, N)
 set skip_missing on
+if exists(names_array)
+  if isvalid_names_array(names_array, N) == TRUE
+    matrix num_string_ids = seq(1, N)'
+  else
+    names_array = array(0)  # reset
+  endif
+endif
+if exists(names)
+  # overwrite eventual 'names_array'
+  strings names_array = strvals(names)
+  matrix num_string_ids = uniq(names)  # ordering could be garbled
+endif
+if exists(num_string_ids)
+  strings clabels = compile_unstack_clabels(names_array, N, num_string_ids)
+  clabels = defarray(&quot;obs&quot;) + clabels
+  cnameset(mat, clabels)
+endif
+return mat
+</code>
+</gretl-function>
+<gretl-function name="isvalid_names_array" type="scalar" private="1">
+ <params count="2">
+  <param name="names_array" type="strings" const="true"/>
+  <param name="N" type="int" min="2" const="true"/>
+ </params>
+<code>/* Check length of 'names_array'.
+return: TRUE if 'names_array'  is sufficiently long, otherwise FALSE. */
+if nelem(names_array) &lt; N
+  printf &quot;\nWarning: Length of array of group names (=%d) does not fit the\n         number of units in the panel data set (=%d). No column labels added.&quot;, nelem(names_array), N
+  return FALSE
+endif
+return TRUE
+</code>
+</gretl-function>
+<gretl-function name="compile_unstack_clabels" type="strings" private="1">
+ <params count="3">
+  <param name="names_array" type="strings" const="true"/>
+  <param name="N" type="int" min="2" const="true">
+<description>No. of panel units</description>
+  </param>
+  <param name="num_string_ids" type="matrix" const="true"/>
+ </params>
+<code>/* Create string array of column labels for the 'unstack' matrix. */
+strings clabels
+if nelem(names_array) &lt; N
+  print &quot;Length of array of group names is smaller than number of panel groups.&quot;
+  return clabels
+endif
+strings clabels = array(N)
+loop i=1..N
+  j = num_string_ids[i]
+  clabels[i] = names_array[j]     # Why to run &quot;fixname(names_array[j])&quot;?
+endloop
+return clabels
+</code>
+</gretl-function>
+<gretl-function name="stackjob" type="matrix" private="1">
+ <params count="3">
+  <param name="L" type="list" const="true">
+<description>List of series to stack</description>
+  </param>
+  <param name="series_name" type="string" const="true">
+<description>Name of constructed series</description>
+  </param>
+  <param name="series_description" type="string" const="true">
+<description>Description</description>
+  </param>
+ </params>
+<code>/* Main job going on in the background. To the stacking, add data to the temporary data set and return list of stacked series plus some ID series.
+Return: In case of an error, return an empty list, otherwise non-empty list with stacked data. */
+list R
+matrix mR
+if has_min_two_members(L) == FALSE
+  return mR
+endif
+# Make sure NAs are not dropped when converting from series to vector
+set skip_missing off
+matrix data_vector = vec({L})
+setobs 1 1 --cross-section      # reset eventual index
+scalar add_T = nobs_to_add(L)
 catch dataset addobs add_T
 if $error
   printf &quot;\nError: Failed to add new observations.\n&quot;
-  return 1
+  return mR
 endif
+R += genseries(&quot;unit_id&quot;, get_unit_id_series(L))
+R += genseries(&quot;obs_id&quot;, get_obs_id_series(L))
 series @series_name = get_target_series(data_vector, series_name, series_description)
-series unit_id = get_unit_id_series(L)
-series obs_id = get_obs_id_series(L)
-list FINAL = unit_id obs_id @series_name
-scalar err_code = store_stacked_series(FINAL, filename)
-return err_code
+R += @series_name
+matrix mR = {R}
+set skip_missing on
+return mR
 </code>
 </gretl-function>
 <gretl-function name="get_target_series" type="series" private="1">
@@ -136,12 +321,55 @@ return id
   </param>
   <param name="filename" type="string" const="true"/>
  </params>
-<code>/* Store dataset with stacked series. */
+<code>/* Store dataset with stacked series.
+Return: FALSE if no error occured, otherwise TRUE. */
+if nelem(L) == 0
+  printf &quot;\nError: Nothing to store as list is empty.\n&quot;
+  return TRUE
+endif
 catch store &quot;@filename&quot; L
-scalar err_code = $error
-if err_code
+if $error
   printf &quot;\nError: %s\n&quot;, errmsg(err_code)
-  return 1
+  return TRUE
+endif
+return FALSE
+</code>
+</gretl-function>
+<gretl-function name="has_min_two_members" type="scalar" private="1">
+ <params count="1">
+  <param name="L" type="list" const="true"/>
+ </params>
+<code>/* Check that 'L' has at least two members.
+Return: TRUE if L has at least two members, otherwise FALSE. */
+if nelem(L) &lt; 2
+  printf &quot;\nError: Input list needs at least two members.\n&quot;
+  return FALSE
+endif
+return TRUE
+</code>
+</gretl-function>
+<gretl-function name="isnonempty_string" type="scalar" private="1">
+ <params count="1">
+  <param name="f" type="string" const="true"/>
+ </params>
+<code>/* Check that 'f' is a non-empty string.
+Return: TRUE if it is valid, otherwise FALSE. */
+if strlen(f) == 0
+  printf &quot;\nError: Invalid filename '%s'.\n&quot;, f
+  return FALSE
+endif
+return TRUE
+</code>
+</gretl-function>
+<gretl-function name="nobs_to_add" type="scalar" private="1">
+ <params count="1">
+  <param name="L" type="list" const="true"/>
+ </params>
+<code>/* Compute number of observations to add to data set. */
+if nelem(L)
+  scalar T = $nobs
+  scalar n_L = nelem(L) - 1
+  return T * n_L
 endif
 return 0
 </code>
@@ -151,9 +379,29 @@ set verbose off
 clear
 
 include stack_data.gfn
-open international_gdp.gdt --frompkg=stack_data --quiet
 
-# Store stacked data
+
+# unstack some panel data set
+open grunfeld.gdt --quiet
+genr unit
+smpl unit &lt;= 3 --restrict   # decrease sample
+# Pass only the series to be unstacked
+matrix mat = unstack(invest)
+print mat
+# Pass string-valued group series 'firmname'
+eval unstack(invest, firmname)
+# Passt array of column names alternatively
+eval  unstack(invest, null, defarray(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;))
+
+# Stack and store data as matrix
+open international_gdp.gdt --frompkg=stack_data --quiet
+list to_be_stacked = dataset
+matrix stacked = stack_matdata(to_be_stacked, &quot;gdp&quot;)
+print stacked
+
+
+# Stack and store stacked data set
+open international_gdp.gdt --frompkg=stack_data --quiet
 list to_be_stacked = dataset
 string filename = &quot;stacked_series.gdt&quot;
 stack_data(to_be_stacked, filename, &quot;gdp&quot;, &quot;gdp for AU AT BE CA CH&quot;)
@@ -166,7 +414,6 @@ stringify(country_name, defarray(&quot;AU&quot;, &quot;AT&quot;, &quot;BE&quot;,
 
 setobs unit_id obs_id --panel-vars
 print unit_id country_name obs_id gdp -o
-
 
 # Note: You may easily join another data set using the keys 'unit_id' and 'obs_id'
 # EXAMPLE: &lt;join somne_data.gdt --ikey=unit_id,obs_id --okey=some_unit_key,some_obs_key&gt;
