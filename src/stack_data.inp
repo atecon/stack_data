@@ -38,7 +38,8 @@ function matrix unstack (const series x "Series to unstack",
 end function
 
 
-function scalar isvalid_names_array (const strings names_array, const int N[2::])
+function scalar isvalid_names_array (const strings names_array,
+                                     int N[2::])
     /* Check length of 'names_array'.
     return: TRUE if 'names_array'  is sufficiently long, otherwise FALSE. */
 
@@ -54,7 +55,7 @@ end function
 
 
 function strings compile_unstack_clabels (const strings names_array,
-                                          const int N[2::] "No. of panel units",
+                                          int N[2::] "No. of panel units",
                                           const matrix num_string_ids)
     /* Create string array of column labels for the 'unstack' matrix. */
 
