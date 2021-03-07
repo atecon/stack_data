@@ -3,21 +3,40 @@
 <gretl-function-package name="stack_data" minver="2020b" lives-in-subdir="true">
 <author email="atecon@posteo.de">Artur Tarassow</author>
 <version>1.0</version>
-<date>2021-03-05</date>
-<description>Stack list of series</description>
+<date>2021-03-07</date>
+<description>Stack and unstack data</description>
 <tags>C81</tags>
 <help>
-This package delivers functions for &quot;un-stacking&quot; a panel data set, and for stacking a time-series data set.
+This package delivers functions for &quot;un-stacking&quot; a panel dataset, and for
+stacking a time-series dataset.
 
-The unstack() function has no built-in gretl counterpart. Ths function isolates the unit-specific time-series of a panel data set with k units into separate columns of a matrix.
+The unstack() function has no built-in gretl counterpart. The function
+isolates the unit-specific time-series of a panel dataset with k units
+into separate columns of a matrix.
 
-Since gretl version 2020b, the built-in stack() function has got new cool features, namely the &quot;offset&quot; and &quot;n&quot; parameters (see for details: http://gretl.sourceforge.net/gretl-help/funcref.html#stack).
+Since gretl version 2020b, the built-in stack() function has got new cool
+features, namely the &quot;offset&quot; and &quot;n&quot; parameters (see for details:
+http://gretl.sourceforge.net/gretl-help/funcref.html#stack).
 
-The stack_data() function proposed here, however, may still be helpful for some applications. First, it can be applied within both a loop-block and a function-block, respectively. While the built-in stack() function can be applied in a loop-block since gretl version 2020b, it is not applicable within a function-block as the dimension of the data set cannot be changed by a some statement within a function-block.
+The stack_data() function proposed here, however, may still be helpful
+for some applications. First, it can be applied within both a loop-block
+and a function-block, respectively. While the built-in stack() function
+can be applied in a loop-block since gretl version 2020b, it is not
+applicable within a function-block as the dimension of the dataset cannot
+be changed by some statement within a function-block.
 
-The stack_data() does its operation not in-memory but rather stores the stacked data set in a separate data file. It simply stacks k series (each of length T) vertically, and adds the two identifier series: (1) 'unit_id' (unique integer identifying each of the k series) and (2) 'obs_id' (running number referring to each of T observations). Both, 'unit_id' and 'obs_id' may be helpful in case the user wants to define the stacked data as a panel data set, and/ or join another data set by means of gretl's built-in 'join' command.
+The stack_data() does its operation not in-memory but rather stores the
+stacked dataset in a separate data file. It simply stacks k series (each
+of length T) vertically, and adds the two identifier series:
+(1) 'unit_id' (unique integer identifying each of the k series) and (2)
+'obs_id' (running number referring to each of T observations). Both,
+'unit_id' and 'obs_id' may be helpful in case the user wants to define
+the stacked data as a panel dataset, and/ or join another dataset by
+means of gretl's built-in 'join' command.
 
-The stack_matdata(), in contrast, does its operation in-memory and returns a matrix to the user instead. This may be useful if you operate with large data sets.
+The stack_matdata(), in contrast, does its operation in-memory and returns
+a matrix to the user instead. This may be useful if you operate with
+large data sets.
 
 Please ask questions and report bugs on the gretl mailing list if possible.
 
@@ -39,14 +58,14 @@ stacked series itself.
 
 Arguments:
 L               - list, List of series to stack
-filename        - string, Full path plus filename where to store data set
+filename        - string, Full path plus filename where to store dataset
 series_name     - string, Name of compiled series (optional, default:
                   &quot;stacked_series&quot;)
 series_description	- string, Set the variable's descriptive label
                       (optional, default: &quot;&quot;)
 
 Return:
-If the stacked data set is successfully stored, return 0, 1 otherwise.
+If the stacked dataset is successfully stored, return 0, 1 otherwise.
 
 
 stack_matdata(L, series_name[null]):
@@ -72,7 +91,8 @@ observations, series x is reshaped to a T by (1+k) matrix. The first
 column refers to the observational index, while the remaining columns
 refer to grouped values of x.
 
-The columns of the resulting matrix may include labels if either (i) a string-valued series 'series_names' or (ii) a string array with k
+The columns of the resulting matrix may include labels if either (i) a
+string-valued series 'series_names' or (ii) a string array with k
 elements is provided. If both 'series_names' and 'names_array' are
 provided and are valid inputs, 'series_names' dominates.
 
@@ -205,7 +225,7 @@ return mat
 <gretl-function name="isvalid_names_array" type="scalar" private="1">
  <params count="2">
   <param name="names_array" type="strings" const="true"/>
-  <param name="N" type="int" min="2" const="true"/>
+  <param name="N" type="int" min="2"/>
  </params>
 <code>/* Check length of 'names_array'.
 return: TRUE if 'names_array'  is sufficiently long, otherwise FALSE. */
@@ -219,7 +239,7 @@ return TRUE
 <gretl-function name="compile_unstack_clabels" type="strings" private="1">
  <params count="3">
   <param name="names_array" type="strings" const="true"/>
-  <param name="N" type="int" min="2" const="true">
+  <param name="N" type="int" min="2">
 <description>No. of panel units</description>
   </param>
   <param name="num_string_ids" type="matrix" const="true"/>
