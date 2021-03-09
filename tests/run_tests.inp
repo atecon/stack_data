@@ -347,14 +347,14 @@ bundles Parameters = null
 Parameters = Parameters + \
             _(\
                 group_series = "firmname",\
-                expected_clabels = defarray("obs", "General Motors",\
+                expected_clabels = defarray("orig_obs", "General Motors",\
                                             "US Steel"),\
                 expected_values = {1, 317.6, 209.9; 2, 391.8, 355.3}\
             )
 Parameters = Parameters + \
             _(\
                 group_array = defarray("A", "B"),\
-                expected_clabels = defarray("obs", "A", "B"),\
+                expected_clabels = defarray("orig_obs", "A", "B"),\
                 expected_values = {1, 317.6, 209.9; 2, 391.8, 355.3}\
             )
 Parameters = Parameters + \

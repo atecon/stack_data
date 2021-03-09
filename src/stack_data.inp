@@ -30,7 +30,7 @@ function matrix unstack (const series x "Series to unstack",
     if exists(num_string_ids)
         strings clabels = compile_unstack_clabels(names_array, N,\
                                                   num_string_ids)
-        clabels = defarray("obs") + clabels
+        clabels = defarray("orig_obs") + clabels
         cnameset(mat, clabels)
     endif
 
@@ -69,7 +69,7 @@ function strings compile_unstack_clabels (const strings names_array,
 
     loop i=1..N
         j = num_string_ids[i]
-        clabels[i] = names_array[j]     # Why to run "fixname(names_array[j])"?
+        clabels[i] = names_array[j]  #fixname(names_array[j])
     endloop
 
     return clabels
@@ -211,7 +211,7 @@ end function
 function scalar store_stacked_series (const list L "ID and stacked series",
                                       const string filename)
     /* Store dataset with stacked series.
-    Return: FALSE if no error occured, otherwise TRUE. */
+    Return: FALSE if no error occurred, otherwise TRUE. */
 
     if nelem(L) == 0
         printf "\nError: Nothing to store as list is empty.\n"
