@@ -75,8 +75,8 @@ Return:
 Non-empty matrix on success, otherwise empty matrix.
 
 
-unstack(x, series_name[null], names_array[null]):
-=================================================
+unstack(x, series_name[null], names_array[null], fix_names[TRUE]):
+==================================================================
 Works only for panel-data. For a panel with k units and T unit-specific
 observations, series x is reshaped to a T by (1+k) matrix. The first
 column refers to the observational index, while the remaining columns
@@ -91,6 +91,8 @@ Arguments:
 x               - series, Series to unstack
 series_names    - series, String-valued series of unit names (optional)
 names_array     - strings, Array of names for each panel unit (optional).
+fix_names       - bool, Convert raw group names to a valid gretl
+                  identifier (optional, default: TRUE)
 
 Return:
 Matrix of dimension T by (1 + k).

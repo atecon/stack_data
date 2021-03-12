@@ -297,21 +297,42 @@ scalar N = $nobs / $pd
 bundles Parameters = null
 Parameters = Parameters + _(name_series = strvals(firmname),\
                             N = N,\
-                            num_string_ids = seq(1, N)',
+                            num_string_ids = seq(1, N)',\
+                            fix_names = FALSE,\
                             expected = strvals(firmname))
+Parameters = Parameters + _(name_series = strvals(firmname),\
+                            N = N,\
+                            num_string_ids = seq(1, N)',\
+                            fix_names = TRUE,\
+                            expected = defarray("General_Motors",\
+                                                "US_Steel",\
+                                                "General_Electric"\
+                                                )\
+                            )
 Parameters = Parameters + _(name_series = strvals(firmname)[1:2],\
                             N = N,\
                             num_string_ids = seq(1, N)',
+                            fix_names = TRUE,\
+                            expected = "")
+Parameters = Parameters + _(name_series = strvals(firmname)[1:2],\
+                            N = N,\
+                            num_string_ids = seq(1, N)',
+                            fix_names = FALSE,\
                             expected = "")
 function void test_compile_unstack_clabels (const bundles P, const list L)
     print "Start testing function compile_unstack_clabels()."
 
     loop foreach i P
+        print i
         # Given + when
         actual = compile_unstack_clabels(P[i].name_series, P[i].N,\
-                                         P[i].num_string_ids)
+                                         P[i].num_string_ids,\
+                                         P[i].fix_names)
+        actual
+        eval P[i].expected
 
         # Then
+        assert(nelem(actual) == nelem(P[i].expected))
         loop j=1..nelem(actual)
             assert(actual[j] == P[i].expected[j])
         endloop
@@ -347,18 +368,43 @@ bundles Parameters = null
 Parameters = Parameters + \
             _(\
                 group_series = "firmname",\
-                expected_clabels = defarray("orig_obs", "General Motors",\
+                fix_names = FALSE,\
+                expected_clabels = defarray("orig_obs",\
+                                            "General Motors",\
                                             "US Steel"),\
                 expected_values = {1, 317.6, 209.9; 2, 391.8, 355.3}\
             )
 Parameters = Parameters + \
             _(\
                 group_array = defarray("A", "B"),\
+                fix_names = FALSE,\
                 expected_clabels = defarray("orig_obs", "A", "B"),\
                 expected_values = {1, 317.6, 209.9; 2, 391.8, 355.3}\
             )
 Parameters = Parameters + \
+            _(fix_names = FALSE,\
+                expected_clabels = array(0),\
+                expected_values = {1, 317.6, 209.9; 2, 391.8, 355.3}\
+            )
+
+Parameters = Parameters + \
             _(\
+                group_series = "firmname",\
+                fix_names = TRUE,\
+                expected_clabels = defarray("orig_obs",\
+                                            "General_Motors",\
+                                            "US_Steel"),\
+                expected_values = {1, 317.6, 209.9; 2, 391.8, 355.3}\
+            )
+Parameters = Parameters + \
+            _(\
+                group_array = defarray("A", "B"),\
+                fix_names = TRUE,\
+                expected_clabels = defarray("orig_obs", "A", "B"),\
+                expected_values = {1, 317.6, 209.9; 2, 391.8, 355.3}\
+            )
+Parameters = Parameters + \
+            _(fix_names = TRUE,\
                 expected_clabels = array(0),\
                 expected_values = {1, 317.6, 209.9; 2, 391.8, 355.3}\
             )
@@ -371,14 +417,16 @@ function void test_unstack (const bundles P, const series endog,
         if inbundle(P[i], "group_series")
             string group_name = P[i].group_series
             # When
-            actual_values = unstack(endog, firmname)
+            actual_values = unstack(endog, firmname, null, P[i].fix_names)
         elif inbundle(P[i], "group_array")
-            actual_values = unstack(endog, null, P[i].group_array)
+            actual_values = unstack(endog, null, P[i].group_array,\
+                                    P[i].fix_names)
         else
-            actual_values = unstack(endog)
+            actual_values = unstack(endog, null, null, P[i].fix_names)
         endif
 
         actual_clabels = cnameget(actual_values)
+        actual_clabels
 
         # Then
         matrix sum_mdiff = sum(actual_values .- P[i].expected_values)
@@ -393,10 +441,5 @@ end function
 test_unstack(Parameters, invest, firmname)
 
 
-
-
-
-
 printf "\nInfo: All tests passed.\n"
-
 

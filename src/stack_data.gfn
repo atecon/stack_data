@@ -3,7 +3,7 @@
 <gretl-function-package name="stack_data" minver="2020b" lives-in-subdir="true">
 <author email="atecon@posteo.de">Artur Tarassow</author>
 <version>1.0</version>
-<date>2021-03-07</date>
+<date>2021-03-12</date>
 <description>Stack and unstack data</description>
 <tags>C81</tags>
 <help>
@@ -84,8 +84,8 @@ Return:
 Non-empty matrix on success, otherwise empty matrix.
 
 
-unstack(x, series_name[null], names_array[null]):
-=================================================
+unstack(x, series_name[null], names_array[null], fix_names[TRUE]):
+==================================================================
 Works only for panel-data. For a panel with k units and T unit-specific
 observations, series x is reshaped to a T by (1+k) matrix. The first
 column refers to the observational index, while the remaining columns
@@ -100,6 +100,8 @@ Arguments:
 x               - series, Series to unstack
 series_names    - series, String-valued series of unit names (optional)
 names_array     - strings, Array of names for each panel unit (optional).
+fix_names       - bool, Convert raw group names to a valid gretl
+                  identifier (optional, default: TRUE)
 
 Return:
 Matrix of dimension T by (1 + k).
@@ -182,7 +184,7 @@ return stackjob(L, series_name, series_description)
 </code>
 </gretl-function>
 <gretl-function name="unstack" type="matrix">
- <params count="3">
+ <params count="4">
   <param name="x" type="series" const="true">
 <description>Series to unstack</description>
   </param>
@@ -191,6 +193,9 @@ return stackjob(L, series_name, series_description)
   </param>
   <param name="names_array" type="strings" optional="true">
 <description>Array of group names alternative</description>
+  </param>
+  <param name="fix_names" type="bool" default="1" const="true">
+<description>Fixname column labels</description>
   </param>
  </params>
 <code>/* Unstack a panel series such that a series for each unit becomes a separate column vector. */
@@ -215,8 +220,8 @@ if exists(names)
   matrix num_string_ids = uniq(names)  # ordering could be garbled
 endif
 if exists(num_string_ids)
-  strings clabels = compile_unstack_clabels(names_array, N, num_string_ids)
-  clabels = defarray(&quot;obs&quot;) + clabels
+  strings clabels = compile_unstack_clabels(names_array, N, num_string_ids, fix_names)
+  clabels = defarray(&quot;orig_obs&quot;) + clabels
   cnameset(mat, clabels)
 endif
 return mat
@@ -237,12 +242,13 @@ return TRUE
 </code>
 </gretl-function>
 <gretl-function name="compile_unstack_clabels" type="strings" private="1">
- <params count="3">
+ <params count="4">
   <param name="names_array" type="strings" const="true"/>
   <param name="N" type="int" min="2">
 <description>No. of panel units</description>
   </param>
   <param name="num_string_ids" type="matrix" const="true"/>
+  <param name="fix_names" type="bool" const="true"/>
  </params>
 <code>/* Create string array of column labels for the 'unstack' matrix. */
 strings clabels
@@ -253,7 +259,8 @@ endif
 strings clabels = array(N)
 loop i=1..N
   j = num_string_ids[i]
-  clabels[i] = names_array[j]     # Why to run &quot;fixname(names_array[j])&quot;?
+  string clabel = (fix_names == TRUE) ? fixname(names_array[j]) : names_array[j]
+  clabels[i] = clabel
 endloop
 return clabels
 </code>
@@ -342,7 +349,7 @@ return id
   <param name="filename" type="string" const="true"/>
  </params>
 <code>/* Store dataset with stacked series.
-Return: FALSE if no error occured, otherwise TRUE. */
+Return: FALSE if no error occurred, otherwise TRUE. */
 if nelem(L) == 0
   printf &quot;\nError: Nothing to store as list is empty.\n&quot;
   return TRUE
