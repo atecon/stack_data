@@ -89,14 +89,11 @@ function matrix stack_matdata (const list L "List of series to stack",
     if !exists(series_name)
         string series_name = "stacked_series"
     endif
-    if !exists(series_description)
-        string series_description = ""
-    endif
     if isnonempty_string(series_name) == FALSE
         return {}
     endif
 
-    return stackjob(L, series_name, series_description)
+    return stackjob(L, series_name, "")
 end function
 
 
