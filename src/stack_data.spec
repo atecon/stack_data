@@ -1,11 +1,11 @@
 author = Artur Tarassow
 email = atecon@posteo.de
-version = 1.0
-date = 2021-03-12
+version = 1.1
+date = 2024-08-14
 description = Stack and unstack data
 tags = C81
-min-version = 2020b
+min-version = 2020c
 public = stack_data stack_matdata unstack
-help = stack_data_help.txt
+help = stack_data_help.md
 sample-script = stack_data_sample.inp
 data-files = international_gdp.gdt
