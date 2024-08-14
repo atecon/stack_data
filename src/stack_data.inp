@@ -1,7 +1,7 @@
 function matrix unstack (const series x "Series to unstack",
-                         const series names[null] "Series holding group names",
+                         series names[null] "Series holding group names",
                          strings names_array[null] "Array of group names alternative",
-                         const bool fix_names[TRUE] "Fixname column labels")
+                         bool fix_names[TRUE] "Fixname column labels")
     /* Unstack a panel series such that a series for each unit becomes a separate column vector. */
 
     errorif($datatype != 3, "This function needs panel data.")
@@ -40,7 +40,7 @@ end function
 
 
 function scalar isvalid_names_array (const strings names_array,
-                                     int N[2::])
+                                     const int N[2::])
     /* Check length of 'names_array'.
     return: TRUE if 'names_array'  is sufficiently long, otherwise FALSE. */
 
@@ -82,7 +82,7 @@ end function
 
 
 function matrix stack_matdata (const list L "List of series to stack",
-                               const string series_name[null] "Name of constructed series")
+                               string series_name[null] "Name of constructed series")
     /* Vertically stack data of 'L' into a single series and return stacked data as matrix.
     return: Empty matrix in case of an error, otherwise matrix including stacked data. */
 
@@ -102,8 +102,8 @@ end function
 
 function scalar stack_data (const list L "List of series to stack",
                             const string filename "Full path + filename of new dataset",
-                            const string series_name[null] "Name of constructed series",
-                            const string series_description[null] "Description")
+                            string series_name[null] "Name of constructed series",
+                            string series_description[null] "Description")
     /* Vertically stack data of L into a single series and
        store the resulting series.
     return: 0 if extended dataset is succesfully stored; 1 otherwise. */

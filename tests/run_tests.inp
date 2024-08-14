@@ -203,7 +203,7 @@ bundles Parameters = null
 Parameters = Parameters + _(list_def = "null", expected = FALSE)
 Parameters = Parameters + _(list_def = "LRM", expected = FALSE)
 Parameters = Parameters + _(list_def = "LRM LRY", expected = TRUE)
-function void test_has_min_two_members (const bundles P, const list L)
+function void test_has_min_two_members (const bundles P, const list Data)
     print "Start testing function has_min_two_members()."
 
     loop foreach i P
@@ -222,10 +222,12 @@ end function
 test_has_min_two_members(Parameters, dataset)
 
 
+
 bundles Parameters = null
 Parameters = Parameters + _(filename = "", expected = FALSE)
 Parameters = Parameters + _(filename = " foo", expected = TRUE)
 Parameters = Parameters + _(filename = "foo", expected = TRUE)
+
 function void test_isnonempty_string (const bundles P)
     print "Start testing function isnonempty_string()."
 
@@ -240,27 +242,27 @@ end function
 test_isnonempty_string(Parameters)
 
 
-nulldata 3 -p
-function void test_get_target_series (void)
+nulldata 3 --preserve
+function void test_get_target_series ()
     print "Start testing get_target_series()"
 
     # Given
     matrix m = mnormal($nobs, 1)
     string expected_name = "feature"
     string expected_description = "some description"
+    list L = empty
 
     # When
     series @expected_name = get_target_series(m, expected_name, expected_description)
-
+    L += @expected_name
     actual_description = getinfo(@expected_name).description
 
     # Then
-    assert(inlist(dataset, @expected_name))
+    assert(inlist(L, @expected_name) == TRUE)
     assert(sum(@expected_name) == sum(m))
     assert(actual_description == expected_description)
 end function
 test_get_target_series()
-
 
 
 open denmark.gdt -q
