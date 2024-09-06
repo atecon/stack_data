@@ -1,7 +1,7 @@
 author = Artur Tarassow
 email = atecon@posteo.de
 version = 1.1
-date = 2024-08-14
+date = 2024-09-06
 description = Stack and unstack data
 tags = C81
 min-version = 2020c

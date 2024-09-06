@@ -12,7 +12,7 @@ The `unstack()` function isolates the unit-specific time-series of a panel datas
 
 ## stack_data()
 
-The `stack_data()` function stacks a list of series vertically and stores the resulting series in a separate data file. This function can be applied within both loop-blocks and function-blocks, unlike Gretl's built-in `stack()` function which cannot change the dataset's dimension within a function-block.
+The `stack_data()` function stacks a list of series vertically and stores the resulting series in a separate data file. This function can be applied within both loop-blocks and function-blocks.
 
 ## stack_matdata()
 
@@ -82,7 +82,7 @@ If both `series_names` and `names_array` are provided and valid, `series_names` 
 
 # Changelog
 
-## v1.1, August 2024
+## v1.1, September 2024
 
 - Switch help text to markdown format, and improve text.
 - Require at least gretl 2020c for quiet default loops.
