@@ -1,10 +1,10 @@
 PKG =  stack_data
 
-$(PKG).gfn: $(PKG).inp $(PKG).spec $(PKG)_sample.inp $(PKG)_help.md international_gdp.gdt
-	gretlcli --makepkg $(PKG).inp
+$(PKG).gfn: $(PKG).inp $(PKG).spec $(PKG)_sample.inp $(PKG)_help.md
+	gretlcli -e --makepkg $(PKG).inp
 
-$(PKG).zip: $(PKG).gfn
-	echo makepkg $(PKG).zip | gretlcli -b -
+$(PKG).zip: $(PKG).gfn international_gdp.gdt
+	echo makepkg $(PKG).zip | gretlcli -b -e -
 
 # Only if the manual is a pdf file or you provide an external dataset
 install: $(PKG).zip
